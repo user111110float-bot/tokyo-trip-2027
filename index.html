@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>過年東京家族遊</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>:root{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+
+<style>
+.map{height:340px;border-radius:12px;border:1px solid var(--line);margin-top:16px;z-index:0}
+#ovmap{height:380px;margin-top:0}
+.mapleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:6px}
+.mapleg i{display:inline-block;width:22px;height:0;border-top:2px dashed var(--muted);vertical-align:3px;margin-right:5px}
+.pin{width:24px;height:24px;border-radius:50%;color:#fff;font:700 12px/24px var(--f-mono);text-align:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.pdot{width:8px;height:8px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 2px rgba(0,0,0,.5)}
+.arw{font-size:16px;line-height:16px;font-weight:700;text-shadow:0 0 3px #fff}
+.leaflet-tooltip{font-family:var(--f-body)}
+</style>
+</head><body>
+
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 左側依城市分段的日程欄 + 右側單日詳情；手機改為頂部橫向日期列。顏色代表過夜城市。 */
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --ink:#18212E; --muted:#5D6878; --line:#DCE1E8; --soft:#E9EDF2;
+  --accent:#18212E;
+  --ueno:#B4472E; --tpe:#2F6DB0;
+  --ok:#2E7D4F; --warn:#9A6B00; --gyg:#0E8F6E; --bad:#C0392B;
+  --f-display:"LXGW WenKai TC","Noto Serif TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10151D; --surface:#18202B; --ink:#E8ECF2; --muted:#98A3B3; --line:#2A3443; --soft:#202A37; --accent:#E8ECF2;
+  --ueno:#EE8C72; --tpe:#7FB0E6; --ok:#6CC892; --warn:#E3B84F; --gyg:#4FD1A5; --bad:#F07B6E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10151D; --surface:#18202B; --ink:#E8ECF2; --muted:#98A3B3; --line:#2A3443; --soft:#202A37; --accent:#E8ECF2;
+  --ueno:#EE8C72; --tpe:#7FB0E6; --ok:#6CC892; --warn:#E3B84F; --gyg:#4FD1A5; --bad:#F07B6E; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--c,var(--ink));outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+header.top{padding-block:22px 10px}
+.top-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,4vw,34px);line-height:1.2;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:13.5px;margin-top:4px}
+.count{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);text-align:right;white-space:nowrap}
+.count b{display:block;font-family:var(--f-display);font-size:26px;color:var(--ink);line-height:1.1;font-weight:700}
+.segbar{display:flex;gap:3px;margin-top:16px;height:8px;border-radius:4px;overflow:hidden}
+.segbar span{background:var(--c);opacity:.85}
+.seglegend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.seglegend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
+
+/* tabs */
+.tabs-wrap{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;padding-block:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:7px 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab .n{font-family:var(--f-mono);font-size:11px;margin-left:4px;opacity:.75}
+
+/* day strip (mobile) */
+.strip{display:none;overflow-x:auto;scrollbar-width:none;gap:6px;padding-block:8px 10px;scroll-snap-type:x proximity}
+.strip::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;scroll-snap-align:center;min-width:58px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);text-align:center;line-height:1.25}
+.chip .d{font-family:var(--f-mono);font-size:11px;color:var(--c)}
+.chip .dt{font-weight:700;font-size:14px}
+.chip .wk{font-size:11px;color:var(--muted)}
+.chip[aria-current="true"]{background:var(--c);border-color:var(--c);color:var(--surface)}
+.chip[aria-current="true"] .d,.chip[aria-current="true"] .wk{color:inherit;opacity:.9}
+
+/* layout */
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:28px;padding-block:20px 60px}
+aside.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);align-self:start;max-height:calc(100vh - 80px);overflow-y:auto;padding-right:4px}
+.sgroup{margin-bottom:14px}
+.sgroup h3{font-size:12px;letter-spacing:.08em;color:var(--c);margin:0 0 4px 10px;font-weight:700}
+.sgroup h3 small{color:var(--muted);font-weight:400;letter-spacing:0;margin-left:6px}
+.srow{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center;width:100%;text-align:left;padding:7px 10px;border-radius:10px;border-left:3px solid transparent}
+.srow:hover{background:var(--soft)}
+.srow .dt{font-family:var(--f-mono);font-size:12.5px;line-height:1.2}
+.srow .dt small{display:block;color:var(--muted);font-size:11px}
+.srow .nm{font-size:14px;line-height:1.35;min-width:0}
+.srow[aria-current="true"]{background:var(--surface);border-left-color:var(--c);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.srow[aria-current="true"] .nm{font-weight:700}
+
+/* day detail */
+.day-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.dlabel{font-family:var(--f-mono);font-size:13px;color:var(--c);font-weight:600}
+.dlabel span{color:var(--muted);font-weight:400;margin-left:8px}
+.nav{display:flex;gap:6px}
+.nav button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px}
+.nav button:disabled{opacity:.35;cursor:default}
+.day h2{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,3.6vw,36px);line-height:1.2;margin:8px 0 2px;text-wrap:balance}
+.theme{color:var(--muted);font-size:15px}
+.routebtn{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:7px 14px;border-radius:999px;background:var(--c);color:var(--surface);text-decoration:none;font-size:14px;font-weight:500}
+.routebtn span{font-size:12px;opacity:.85;font-family:var(--f-mono)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px}
+.facts div{background:var(--surface);padding:10px 14px;min-width:0}
+.facts dt{font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+.facts dd{margin:2px 0 0;font-size:13.5px;line-height:1.45}
+.sec-t{font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:700;margin:28px 0 10px}
+ol.plan{list-style:none;margin:0;padding:0;position:relative}
+ol.plan li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+ol.plan li:first-child{border-top:0}
+.tm{font-family:var(--f-mono);font-size:14px;font-weight:600;color:var(--c);font-variant-numeric:tabular-nums;padding-top:1px}
+.pt{font-weight:700;font-size:16px;line-height:1.4}
+.pd{color:var(--muted);font-size:14px;margin-top:2px}
+.maplink{display:inline-block;font-size:12px;margin-top:5px;color:var(--c);text-decoration:none;border-bottom:1px dotted currentColor}
+.hl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hl div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tag{display:inline-block;font-size:11px;font-weight:700;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:0 8px;line-height:18px}
+.hl b{display:block;margin-top:6px;font-size:15px}
+.hl p{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+.tips{background:var(--soft);border-radius:12px;padding:12px 16px;font-size:14px}
+.daytodo{display:flex;flex-direction:column;gap:6px}
+.foot-nav{display:flex;justify-content:space-between;gap:10px;margin-top:32px;padding-top:16px;border-top:1px solid var(--line)}
+.foot-nav button{text-align:left;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:13px;max-width:48%}
+.foot-nav button:last-child{text-align:right;margin-left:auto}
+.foot-nav small{display:block;color:var(--muted);font-size:11.5px}
+
+/* todo rows */
+.todo{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+.st{font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap}
+.st.todo-s{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.st.done-s{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.todo small{display:block;color:var(--muted);font-size:12.5px}
+.todo .on{font-family:var(--f-mono);font-size:12px;color:var(--c)}
+.todo button.on{border-bottom:1px dotted currentColor}
+
+/* overview */
+.ov{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:28px;padding-block:20px 60px}
+.ovlist{display:flex;flex-direction:column}
+.ovrow{display:grid;grid-template-columns:62px minmax(0,1fr) minmax(0,.9fr);gap:14px;padding:12px 10px;border-top:1px solid var(--line);text-align:left;width:100%;border-left:3px solid var(--c)}
+.ovrow:hover{background:var(--surface)}
+.ovrow .dt{font-family:var(--f-mono);font-size:13px;line-height:1.3}
+.ovrow .dt small{display:block;color:var(--muted)}
+.ovrow .city{font-weight:700;font-size:15px;line-height:1.35}
+.ovrow .acts{color:var(--muted);font-size:13px;margin-top:2px}
+.ovrow .stay{font-size:13px;color:var(--muted);line-height:1.45}
+.ovrow .stay b{display:block;color:var(--ink);font-weight:500;font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
+.routebox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);align-self:start}
+.routebox svg{width:100%;height:auto;display:block}
+.routebox .cap{font-size:12px;color:var(--muted);margin-top:6px}
+.segsum{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-size:13px}
+.segsum div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.segsum b{color:var(--c)}
+
+.bk{padding-block:20px 60px;max-width:760px}
+.bk .prog{display:flex;align-items:center;gap:12px;margin-bottom:16px;font-size:14px}
+.bk .bar{flex:1;height:6px;background:var(--soft);border-radius:3px;overflow:hidden}
+.bk .bar span{display:block;height:100%;background:var(--ok)}
+.bk .list{display:flex;flex-direction:column;gap:6px}
+.note{color:var(--muted);font-size:13px;margin-top:12px}
+.lead{color:var(--muted);font-size:14px;margin:0 0 18px}
+.st.wait-s{color:var(--muted);background:var(--soft)}
+.tick{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:52px;padding:2px 0;border-radius:8px}
+.tick .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);background:var(--surface);display:flex;align-items:center;justify-content:center}
+.tick.on-done .box{background:var(--ok);border-color:var(--ok)}
+.tick.on-done .box::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.tick:not(:disabled):hover .box{border-color:var(--ok)}
+.tick:disabled{cursor:default;opacity:.85}
+.tick em{font-style:normal;font-weight:400;margin-left:4px;font-family:var(--f-mono);font-size:10.5px}
+.files{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.file{position:relative;display:inline-flex;align-items:center}
+.file img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block;background:var(--soft)}
+.file .pdf{display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--soft);text-decoration:none}
+.viewer{position:fixed;inset:0;z-index:100;background:rgba(10,12,16,.92);display:flex;flex-direction:column}
+.viewer .vbar{display:flex;align-items:center;gap:8px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));color:#fff;font-size:14px}
+.viewer .vbar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.viewer .vbar button{color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 12px;font-size:13px;white-space:nowrap}
+.viewer .vbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:0 12px 24px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.viewer .vbody img,.viewer .vbody canvas{max-width:100%;height:auto;background:#fff;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.viewer .vmsg{color:#ddd;font-size:14px;margin-top:40px;text-align:center}
+.fdel{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:12px;line-height:20px}
+.fdel.armed{background:var(--bad);color:var(--surface);white-space:nowrap}
+.up{display:inline-flex;align-items:center;font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px dashed var(--muted);color:var(--muted);cursor:pointer}
+.up:hover{border-color:var(--ok);color:var(--ok)}
+.up input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.upmsg{flex-basis:100%;font-size:12px;color:var(--bad)}
+.upnote{font-size:13px;color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);border-radius:10px;padding:8px 12px;margin:0 0 12px}
+.todo.is-done .itm{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 60%,transparent);color:var(--muted)}
+.gyg{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin-top:6px;padding:4px 12px;border-radius:999px;border:1px solid var(--gyg);color:var(--gyg);text-decoration:none;font-size:13px;font-weight:700}
+.gyg span{font-weight:400;font-size:12px;color:var(--muted)}
+.gyg:hover{background:color-mix(in srgb,var(--gyg) 10%,transparent)}
+.todo small b{font-weight:700;color:var(--ok)}
+.todo small b.soon{color:var(--warn)}
+.legs{display:flex;flex-direction:column;gap:8px}
+.leg{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.leg-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.mode{font-size:11.5px;font-weight:700;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:0 8px;line-height:19px;white-space:nowrap}
+.route{font-weight:700;font-size:15px;flex:1;min-width:0}
+.leg .on{font-family:var(--f-mono);font-size:12px;border-bottom:1px dotted currentColor}
+.how{font-size:14px;margin-top:5px}
+.ltip{font-size:13px;color:var(--muted);margin-top:3px}
+.trgroup{margin-bottom:22px}
+.trgroup h3{font-size:13px;letter-spacing:.06em;color:var(--c);margin:0 0 8px}
+.trgroup h3 small{color:var(--muted);font-weight:400;margin-left:8px;font-family:var(--f-mono);letter-spacing:0}
+.prep{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.prep div{background:var(--surface);padding:10px 14px}
+.prep dt{font-weight:700;font-size:14.5px}
+.prep dd{margin:2px 0 0;font-size:14px;color:var(--muted)}
+/* 收藏指南 */
+.ctabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.ctab{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-weight:500}
+.ctab[aria-selected="true"]{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface))}
+.ctab .n{font-family:var(--f-mono);font-size:11px;margin-left:4px;opacity:.75}
+.refs{display:flex;flex-direction:column;gap:10px}
+.ref{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:12px;padding:12px 14px}
+.ref-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.ref-top b{font-size:15.5px;flex:1;min-width:0}
+.ref .src{display:inline-block;margin-top:6px;font-size:13px;color:var(--c);border-bottom:1px dotted currentColor;text-decoration:none}
+.ref ul{margin:8px 0 0;padding-left:18px;font-size:14px}
+.ref li{margin:3px 0}
+.ref li small{color:var(--muted)}
+.ref .pend{margin-top:8px;font-size:13px;color:var(--warn)}
+.ref .rdays{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px}
+.ref .rn{margin-top:6px;font-size:13.5px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;background:var(--soft);border-radius:12px;padding:14px 16px}
+.need{font-size:11px;font-weight:700;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--ink)}
+
+.rooms{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:16px}
+.rooms td{border-top:1px solid var(--line);padding:7px 4px;vertical-align:top}
+.rooms td:first-child{font-family:var(--f-mono);font-weight:600;color:var(--c);width:34px}
+.rooms small{display:block;color:var(--muted);font-size:12px}
+.callout{background:color-mix(in srgb,var(--warn) 10%,transparent);border-left:3px solid var(--warn);border-radius:8px;padding:10px 14px;font-size:14px;margin:0 0 18px}
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr);padding-top:12px}
+  aside.side{display:none}
+  .strip{display:flex}
+  .ov{grid-template-columns:minmax(0,1fr)}
+  .routebox{position:static;order:-1;max-width:420px}
+  .routebox svg{max-height:300px}
+}
+@media (max-width:560px){
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .hl{grid-template-columns:minmax(0,1fr)}
+  ol.plan li{grid-template-columns:58px minmax(0,1fr);gap:10px}
+  .ovrow{grid-template-columns:54px minmax(0,1fr)}
+  .ovrow .stay{grid-column:2}
+  .count{text-align:left}
+  .nav{display:none}
+  .todo{grid-template-columns:auto minmax(0,1fr)}
+  .todo .on{grid-column:2;justify-self:start}
+}
+@media (prefers-reduced-motion:no-preference){
+  .day{animation:fade .25s ease}
+  @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<header class="top wrap">
+  <div class="top-row">
+    <div>
+      <h1 id="tripTitle"></h1>
+      <div class="sub" id="tripSub"></div>
+    </div>
+    <div class="count" id="countdown"></div>
+  </div>
+  <div class="segbar" id="segbar"></div>
+  <div class="seglegend" id="seglegend"></div>
+</header>
+
+<div class="tabs-wrap">
+  <div class="wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-day" data-tab="day">每日行程</button>
+      <button class="tab" role="tab" id="tab-ov" data-tab="ov">總覽</button>
+      <button class="tab" role="tab" id="tab-tr" data-tab="tr">交通</button>
+      <button class="tab" role="tab" id="tab-sv" data-tab="sv">收藏指南<span class="n" id="svCount"></span></button>
+      <button class="tab" role="tab" id="tab-bk" data-tab="bk">預訂與準備<span class="n" id="bkCount"></span></button>
+    </div>
+    <div class="strip" id="strip"></div>
+  </div>
+</div>
+
+<main class="wrap" id="main"></main>
+
+<script>
+/* ==================================================================
+   行程資料：要改行程只改這一段
+   - START：第一天的日期，之後每天的日期與星期會自動算
+   - SEGMENTS：過夜城市分段（顏色、名稱）
+   - DAYS：照順序排，每天一筆；新增/刪除/調換順序後 D 編號與日期自動重排
+       seg     過夜城市（對應 SEGMENTS 的 key）
+       route   Google 地圖路線上的地點（照順序）；rmode = walking/driving/transit
+       hops    （換城市的日子）地圖上的完整移動：[地點, 怎麼到這裡 start/flight/train/car/walk/boat]
+       plan    時間軸 { t 時間, title, desc, map(可選：Google 地圖搜尋字) }
+       hl      亮點 { tag, title, desc }
+   - BOOKINGS 預訂清單、LEGS 交通、PREP 出發前準備、GUIDES 導遊（各自上方有欄位說明）
+   ================================================================== */
+const TRIP = {
+  title: "過年東京家族旅行",
+  route: "10 人（5 位長輩）· 春節連假 · 成田進、羽田出 · 住上野 4 晚 · 包車門到門",
+  START: "2027-02-04",
+};
+
+const SEGMENTS = {
+  ueno: { name: "東京・上野", country: "日本", lat: 35.71, lon: 139.78 },
+  tpe:  { name: "回台灣", country: "台灣", lat: 25.07, lon: 121.55 },
+};
+
+/* 分房：4 間連號、同樓層、靠電梯（訂房時用備註提出，飯店不保證） */
+const ROOMS = [
+  {r:"R1", who:"我＋老婆", type:"雙人房（雙床）", role:"主揪・保管全家藥袋和證件影本"},
+  {r:"R2", who:"三弟＋弟媳", type:"雙人房（雙床）", role:"機動・晚上有事找他們"},
+  {r:"R3", who:"爸媽＋二弟", type:"三人房", role:"二弟負責晚上照顧爸媽"},
+  {r:"R4", who:"岳父母＋三姨", type:"三人房", role:"三人互相照顧・吃素・怕冷"},
+];
+
+const DAYS = [
+  { seg:"ueno", city:"抵達成田 → 上野・淺草", short:"抵達・淺草", theme:"小年夜・先安頓、再散步",
+    route:["Ueno Station","Sensoji Temple","Nakamise Shopping Street","Ueno Station"], rmode:"driving",
+    hops:[["Taipei Taoyuan Airport","start"],["Narita International Airport","flight"],["Ueno Station","car"],["Sensoji Temple","car"],["Ueno Station","car"]],
+    plan:[
+      {t:"上午", title:"台灣起飛 → 成田", desc:"飛行約 3 小時，時間依訂到的航班；春節連假機位緊，越早訂越好"},
+      {t:"抵達後", title:"包車司機在入境大廳接機", desc:"10 人加行李，直接上中巴到飯店，不用轉電車；長輩先去機場廁所再上車", map:"Narita International Airport"},
+      {t:"約 1.5 小時後", title:"上野站旁飯店・入住", desc:"上野站旁；分房見「總覽」。行李集中在走廊，一次推進電梯", map:"Ueno Station"},
+      {t:"16:30", title:"淺草寺參拜", desc:"中巴開到雷門附近下車；參道平坦，參拜 15 分鐘就好。日落約 17:15，寶藏門和五重塔點燈很好看", map:"Sensoji Temple"},
+      {t:"17:15", title:"仲見世通・伴手禮", desc:"約 250 公尺的商店街，人形燒、仙貝邊走邊吃；春節期間人潮多，長輩走中間別脫隊", map:"Nakamise Shopping Street"},
+      {t:"18:30", title:"淺草或上野晚餐", desc:"10 人桌席，選有素食的店（餐廳待訂）；吃完包車回飯店，早點睡"},
+    ],
+    hl:[
+      {tag:"長輩", title:"第一天不趕", desc:"只排一個景點，飛機坐完先休息，體力留給後面幾天"},
+      {tag:"拍照", title:"淺草寺黃昏", desc:"天快黑時寶藏門的大燈籠和五重塔點燈，人潮也比白天少一些"},
+    ],
+    tips:"日本比台灣快 1 小時。2/4 是台灣小年夜，春節期間淺草、銀座都會有很多華人遊客，集合點要先講好（例如「雷門大燈籠下」）。全家第一天就加入同一個 LINE 群組，開位置分享。",
+    stay:"上野站旁飯店・4 間（第 1 晚）", transport:"包車：成田接機 → 飯店 → 淺草 → 飯店", temp:"東京 2°C ~ 10°C・晚上冷" },
+
+  { seg:"ueno", city:"上野公園・東京車站", short:"上野・東京站", theme:"除夕・室內暖、晚上團圓",
+    route:["Ueno Station","Ueno Park","Tokyo National Museum","KITTE Marunouchi","Ueno Station"], rmode:"driving",
+    plan:[
+      {t:"09:30", title:"飯店早餐、慢慢出門", desc:"今天不用早起"},
+      {t:"10:30", title:"上野公園散步", desc:"從飯店走路或坐車都很近；園內道路平坦、長椅多，走 30 分鐘就好", map:"Ueno Park"},
+      {t:"11:15", title:"東京國立博物館（可選）", desc:"有暖氣的室內行程，本館有電梯、可借輪椅；累了就跳過", map:"Tokyo National Museum"},
+      {t:"12:30", title:"上野午餐", desc:"餐廳待訂；上野站、松坂屋一帶選擇多"},
+      {t:"14:00", title:"包車到 KITTE 丸之內", desc:"電梯直達 6 樓屋頂花園，免費看東京車站紅磚站舍；樓下商場可以逛、坐著休息", map:"KITTE Marunouchi"},
+      {t:"15:00", title:"東京車站一帶下午茶", desc:"坐著吃水果甜點（店家待訂，10 人要先訂位）"},
+      {t:"16:30", title:"回飯店休息、換衣服", desc:""},
+      {t:"18:30", title:"除夕年夜飯", desc:"全家 10 人在日本吃團圓飯；選有包廂或桌席、有素食的店（餐廳待訂，一定要先訂）"},
+    ],
+    hl:[
+      {tag:"團圓", title:"日本除夕年夜飯", desc:"今天是除夕，晚餐訂一間有包廂的店，全家坐下來好好吃一頓"},
+      {tag:"長輩", title:"一半時間在室內", desc:"博物館、KITTE、下午茶都有暖氣和座位，冷了隨時躲進去"},
+    ],
+    tips:"東京國立博物館週一休館，今天（週五）有開。上野動物園的熊貓已經在 2026 年 1 月送回中國，不用特地排動物園。年夜飯在日本不是節日，平常的餐廳都有開，但 10 人要提早訂位，素食需求訂位時就講。",
+    stay:"上野站旁飯店（第 2 晚）", transport:"包車：市區接送（約 10:30–18:30）", temp:"東京 2°C ~ 10°C" },
+
+  { seg:"ueno", city:"熱海一日遊・早櫻與梅花", short:"熱海早櫻", theme:"大年初一・看日本最早的櫻花",
+    route:["Ueno Station","Itokawa Promenade Atami","Atami Baien","Ueno Station"], rmode:"driving",
+    hops:[["Ueno Station","start"],["Itokawa Promenade Atami","car"],["Atami Baien","car"],["Ueno Station","car"]],
+    plan:[
+      {t:"08:00", title:"中巴從飯店門口出發", desc:"約 2 小時到熱海；車上準備毛毯、熱水，長輩可以補眠。中途在海老名或足柄服務區休息一次"},
+      {t:"10:15", title:"糸川遊步道・あたみ桜", desc:"熱海特有的早開櫻花，1 月到 2 月上旬盛開；沿河的平坦步道，走一段拍照就好。司機在附近放大家下車", map:"Itokawa Promenade Atami"},
+      {t:"11:30", title:"熱海午餐", desc:"海鮮丼、干物定食；R4 吃素，先找好有素食的店（餐廳待訂）"},
+      {t:"13:00", title:"熱海梅園・梅祭", desc:"近 60 個品種、470 多棵梅樹；梅祭期間園內有免費足湯，冷了泡腳暖身。園區在山谷裡有坡道，長輩走入口附近的平路段就好", map:"Atami Baien"},
+      {t:"14:30", title:"出發回東京", desc:"週末下午回程可能塞車，預計 17:00–17:30 到飯店"},
+      {t:"晚上", title:"上野附近簡單吃", desc:"今天早起，晚餐簡單吃、早點休息"},
+    ],
+    hl:[
+      {tag:"花期", title:"あたみ桜", desc:"一根枝上有早開和晚開的花苞，花期長達一個月，2 月初正是時候"},
+      {tag:"長輩", title:"梅園足湯", desc:"梅祭期間園內有足湯，邊泡腳邊看梅花"},
+    ],
+    tips:"為什麼不去河津：2027 年的開花預測要到 2027 年 1–2 月才會公布，只能看往年。過去十年河津櫻多半在 2 月中旬才到最好看；近年最早的是 2024 年，2/12 宣布見頃，2025 年則到 3/1 左右才滿開，2026 年實際在 2/18 左右才七分開。2/6 大多還只是剛開到三分。熱海的あたみ桜每年 1 月到 2 月上旬盛開，車程也近 1 小時。想看河津櫻的話，出發前一週看河津町公布的開花狀況再決定（單程約 3 小時，要提早到 07:00 出發）。包車 14 人座以上一天含 9 小時，今天 08:00–17:30 會超時，超時費約 ¥10,000／小時（21 人座），付給司機。熱海梅園梅祭期間 8:30–16:00 入園 ¥300。",
+    stay:"上野站旁飯店（第 3 晚）", transport:"包車：上野 ⇄ 熱海（單程約 2 小時）", temp:"熱海 4°C ~ 12°C・比東京暖一點" },
+
+  { seg:"ueno", city:"銀座・teamLab Borderless", short:"銀座・teamLab", theme:"週日・暖氣百貨與光之美術館",
+    route:["Ueno Station","Ginza Mitsukoshi","Azabudai Hills","Ueno Station"], rmode:"driving",
+    plan:[
+      {t:"10:30", title:"包車到銀座", desc:"約 20 分鐘"},
+      {t:"11:00", title:"銀座三越・購物", desc:"百貨裡暖氣足、每層都有廁所和椅子；週日中午起中央通變成步行者天國，可以走在大馬路中間", map:"Ginza Mitsukoshi"},
+      {t:"12:30", title:"銀座午餐", desc:"10 人包廂或桌席（餐廳待訂）；百貨高樓層的餐廳街選擇多"},
+      {t:"14:00", title:"UNIQLO 銀座・自由逛", desc:"想逛的去逛，長輩可以在百貨咖啡廳休息", map:"UNIQLO Ginza"},
+      {t:"15:30", title:"teamLab Borderless（麻布台之丘）", desc:"包車約 20 分鐘；預約時段票。館內很暗、地面有坡，長輩跟緊；部分作品輪椅到不了", map:"teamLab Borderless Azabudai Hills"},
+      {t:"17:30", title:"麻布台之丘晚餐或回上野", desc:"看大家體力決定（餐廳待訂）"},
+    ],
+    hl:[
+      {tag:"購物", title:"銀座步行者天國", desc:"週六日 12:00–17:00 封街，中央通 1–8 丁目變成行人專用"},
+      {tag:"拍照", title:"teamLab 光影", desc:"穿淺色衣服拍起來最好看；館內不能帶大包包"},
+    ],
+    tips:"銀座步行者天國 12:00–17:00 車子進不了中央通，請司機在旁邊的巷子上下車。teamLab Borderless 要選時段入場，週日加上春節人很多，越早訂越好；入場後在館內不限時，但最後入場時間前要進場。",
+    stay:"上野站旁飯店（第 4 晚）", transport:"包車：上野 → 銀座 → 麻布台 → 上野", temp:"東京 2°C ~ 10°C" },
+
+  { seg:"tpe", city:"濱離宮賞梅 → 羽田回家", short:"賞梅・回家", theme:"最後半天・梅花與伴手禮",
+    route:["Ueno Station","Hama-rikyu Gardens","Haneda Airport"], rmode:"driving",
+    hops:[["Ueno Station","start"],["Hama-rikyu Gardens","car"],["Haneda Airport","car"],["Taipei Songshan Airport","flight"]],
+    plan:[
+      {t:"09:30", title:"退房、行李上中巴", desc:"行李直接放車上，不用再回飯店"},
+      {t:"10:15", title:"濱離宮恩賜庭園・梅林", desc:"2 月上旬看梅花，園內平坦、有休息亭；65 歲以上門票 ¥150。新宿御苑週一休園，所以改來這裡", map:"Hama-rikyu Gardens"},
+      {t:"11:30", title:"汐留或新橋午餐", desc:"餐廳待訂"},
+      {t:"13:00", title:"中巴直達羽田", desc:"約 25 分鐘，在出發大廳門口下車", map:"Haneda Airport"},
+      {t:"13:30", title:"羽田伴手禮", desc:"出境前最後採買，提早到不趕；登機時間依訂到的航班"},
+      {t:"傍晚", title:"回到台灣", desc:""},
+    ],
+    hl:[
+      {tag:"賞花", title:"高樓間的梅林", desc:"濱離宮在汐留高樓旁邊，梅花配摩天大樓很有東京感"},
+      {tag:"長輩", title:"順路就好", desc:"從上野去羽田剛好經過，不多繞路"},
+    ],
+    tips:"濱離宮 9:00–17:00（16:30 停止入園），只有年底休園。菜花田要 2 月中旬才開，這次看梅花為主。羽田國際線建議起飛前 2.5 小時到；有買東西要退稅的再多留 30 分鐘（2026/11 起日本改成出境時退稅）。",
+    stay:"回到家", transport:"包車：飯店 → 濱離宮 → 羽田・飛機回台灣", temp:"東京 2°C ~ 10°C" },
+];
+
+/* 預訂清單：id 固定不要改；status "待訂"|"已訂"；opens 幾天前開放；gyg 欄位放 KKday／Klook 連結 {url, price, rating, site} */
+const BOOKINGS = [
+  {id:"flight-out", item:"去程機票 台灣 → 成田（2/4，10 人）", day:"D1", status:"待訂", where:"航空公司官網", note:"春節連假第一天，機位和票價都很搶；上午出發、中午前後到最好"},
+  {id:"flight-home", item:"回程機票 羽田 → 台灣（2/8 下午，10 人）", day:"D5", status:"待訂", where:"航空公司官網", note:"羽田飛松山或桃園都有；選 15:30 以後起飛，上午才能去濱離宮"},
+  {id:"hotel-ueno", item:"上野站旁飯店 4 間（2/4–2/8，4 晚）", day:"D1", status:"待訂", where:"飯店官網或訂房網站", note:"2 間雙床、2 間三人房；備註要求同樓層、連號、靠電梯，飯店不保證。已經訂好的話直接打勾"},
+  {id:"charter", item:"包車 5 天（Toyota Coaster 21 人座級，中文司機）", day:"D1", status:"待訂", where:"KKday", gyg:{site:"KKday", url:"https://www.kkday.com/en-us/product/138986-japan-customized-multi-day-charter-car-service-diy-free-travel-tokyo-osaka-nagoya-hokkaido", price:"整單報價", rating:"4.8（已售 6K+）"}, note:"14 人座 Hiace 最多只能坐 11 人，10 人加行李放不下，要選 21 人座。一天含 9 小時，超時 ¥10,000／小時付給司機；3 天前可免費取消。把 5 天行程貼給客服報價"},
+  {id:"dinner-eve", item:"除夕年夜飯 10 人（2/5 晚上）", day:"D2", status:"待訂", where:"餐廳官網、Tabelog 或請飯店代訂", note:"要包廂或桌席，訂位時說明有 3 人吃素"},
+  {id:"tea-tokyo", item:"東京車站下午茶 10 人（2/5）", day:"D2", status:"待訂", where:"店家官網", note:"店家待定，訂得到哪間就去哪間"},
+  {id:"lunch-ginza", item:"銀座午餐 10 人（2/7）", day:"D4", status:"待訂", where:"餐廳官網或 Tabelog", note:"週日中午很滿，要先訂；選不用脫鞋的桌席"},
+  {id:"teamlab", item:"teamLab Borderless 時段票（2/7 15:30 左右，10 張）", day:"D4", status:"待訂", where:"Klook 或 teamLab 官網", gyg:{site:"Klook", url:"https://www.klook.com/zh-HK/activity/20707-teamlab-borderless-admission-ticket-tokyo/", price:"HK$189 起／人", rating:"4.7（24,400 則）"}, note:"選時段入場；長輩票價以官網為準。需要輪椅先打電話 +81-3-6230-9666 問"},
+];
+
+/* 交通 */
+const LEGS = [
+  {day:"D1", from:"台灣", to:"成田機場", mode:"飛機", how:"約 3 小時。", tip:"日本比台灣快 1 小時。"},
+  {day:"D1", from:"成田機場", to:"上野站旁飯店", mode:"包車", how:"司機在入境大廳舉牌接機，約 1–1.5 小時。", tip:"包車訂單要填航班號碼，班機延誤司機才會等。"},
+  {day:"D1", from:"飯店", to:"淺草寺 → 飯店", mode:"包車", how:"單程約 15 分鐘，雷門附近下車。", tip:""},
+  {day:"D2", from:"飯店", to:"上野公園 → KITTE → 飯店", mode:"包車", how:"上野公園走路就到；去東京車站約 15 分鐘。", tip:""},
+  {day:"D3", from:"上野", to:"熱海", mode:"包車", how:"首都高 → 東名或小田原厚木道路，約 2 小時，中途休息一次。", tip:"週末回程容易塞，14:30 前出發。"},
+  {day:"D4", from:"飯店", to:"銀座 → 麻布台之丘 → 飯店", mode:"包車", how:"每段約 20 分鐘。", tip:"銀座中央通 12:00–17:00 封街，在巷子上下車。"},
+  {day:"D5", from:"飯店", to:"濱離宮 → 羽田機場", mode:"包車", how:"飯店到濱離宮約 20 分鐘，濱離宮到羽田約 25 分鐘。", tip:"行李一早就放車上。"},
+  {day:"D5", from:"羽田機場", to:"台灣", mode:"飛機", how:"約 3.5–4 小時。", tip:"國際線提早 2.5 小時到。"},
+];
+
+const PREP = [
+  {t:"護照", d:"台灣護照免簽入境日本 90 天，效期涵蓋停留期間即可。"},
+  {t:"入境登記", d:"出發前在 Visit Japan Web 填好入境和海關資料，10 個人每人一組 QR Code；長輩的可以由家人代填。"},
+  {t:"長輩用藥", d:"藥品帶足 5 天份再加 2 天，放隨身行李；主揪保管一份全家的用藥清單和病歷摘要。"},
+  {t:"素食", d:"日本很多料理用柴魚高湯，訂位時要講清楚「肉、魚、柴魚高湯都不行」；可以準備一張日文的素食說明卡。"},
+  {t:"保暖", d:"東京 2 月白天約 10°C、早晚接近 0°C；帶發熱衣、羽絨外套、毛帽、手套、暖暖包。"},
+  {t:"行動", d:"需要的話帶折疊輪椅或拐杖；淺草寺、上野公園、濱離宮都是平路。"},
+  {t:"付款", d:"大多能刷卡或感應；帶一些日圓現金給小店、超時費（付給司機）。"},
+  {t:"網路", d:"日本 eSIM 或 Wi-Fi 分享器；全家建同一個 LINE 群組，開位置分享。"},
+  {t:"保險", d:"旅平險加買海外突發疾病和班機延誤，長輩尤其要買。"},
+  {t:"退稅（2026/11 起新制）", d:"日本改成先付含稅價、出境時再退稅：同一家店同一天滿 ¥5,000（未稅），結帳出示護照，商品出境前不要拆開使用，在羽田出境時辦退稅。要退稅的話機場多留 30 分鐘。"},
+];
+
+const GUIDES = [
+  {t:"全程交通", need:"包車", d:"中文司機門到門，全家不用轉電車；司機不是導遊，景點介紹靠我們自己。"},
+  {t:"淺草寺、上野公園、濱離宮", need:"不用", d:"自己逛，平路好走。"},
+  {t:"熱海", need:"不用", d:"司機會放大家在景點附近下車，回程時間先講好。"},
+  {t:"teamLab Borderless", need:"不用", d:"買好時段票就能進場，館內自由走。"},
+];
+
+const COUNTRIES = [{k:"日本", seg:"ueno"}];
+const REFS = [];
+
+/* ======================= 資料到此為止 ======================= */
+
+const COLORS = {ueno:"var(--ueno)",tpe:"var(--tpe)"};
+const WK = "日一二三四五六";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const [sy, sm, sd] = TRIP.START.split("-").map(Number);
+DAYS.forEach((d, i) => {
+  const dt = new Date(sy, sm - 1, sd + i);
+  d.id = "D" + (i + 1); d.i = i;
+  d.date = `${dt.getMonth() + 1}/${dt.getDate()}`;
+  d.wk = WK[dt.getDay()];
+  d.c = COLORS[d.seg];
+});
+const lastDay = DAYS[DAYS.length - 1];
+const routeUrl = d => {
+  if (!d.route || d.route.length < 2) return "";
+  const r = d.route, e = encodeURIComponent;
+  let u = "https://www.google.com/maps/dir/?api=1&origin=" + e(r[0]) + "&destination=" + e(r[r.length - 1]) + "&travelmode=" + (d.rmode || "walking");
+  if (r.length > 2) u += "&waypoints=" + r.slice(1, -1).map(e).join("%7C");
+  return u;
+};
+const mapUrl = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+
+// grouped segments, in order of appearance
+const groups = [];
+DAYS.forEach(d => { const g = groups[groups.length - 1]; if (g && g.seg === d.seg) g.days.push(d); else groups.push({seg:d.seg, days:[d]}); });
+
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+let state = { tab: "day", day: 0, country: "日本" };
+{ const sc = store.get("tk-country"); if (COUNTRIES.some(c => c.k === sc)) state.country = sc; }
+const h = location.hash.replace("#", "").toLowerCase();
+if (/^d\d+$/.test(h) && +h.slice(1) <= DAYS.length) state.day = +h.slice(1) - 1;
+else if (["day","ov","tr","sv","bk"].includes(h)) state.tab = h;
+else { const sd2 = +store.get("tk-day"); if (sd2 >= 0 && sd2 < DAYS.length) state.day = sd2; const st = store.get("tk-tab"); if (["day","ov","tr","sv","bk"].includes(st)) state.tab = st; }
+
+// header
+document.getElementById("tripTitle").textContent = TRIP.title;
+document.getElementById("tripSub").textContent = `${DAYS[0].date}（${DAYS[0].wk}）– ${lastDay.date}（${lastDay.wk}）· ${DAYS.length} 天 · ${TRIP.route}`;
+(function countdown(){
+  const now = new Date(); const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = new Date(sy, sm - 1, sd);
+  const diff = Math.round((start - t0) / 864e5);
+  let html;
+  if (diff > 0) html = `距離出發<b>${diff} 天</b>`;
+  else if (-diff < DAYS.length) html = `旅行進行中<b>第 ${1 - diff} 天</b>`;
+  else html = `旅行<b>已完成</b>`;
+  document.getElementById("countdown").innerHTML = html;
+})();
+document.getElementById("segbar").innerHTML = groups.map(g => `<span style="--c:${COLORS[g.seg]};flex:${g.days.length}" title="${esc(SEGMENTS[g.seg].name)}"></span>`).join("");
+document.getElementById("seglegend").innerHTML = groups.map(g => `<span style="--c:${COLORS[g.seg]}"><i></i>${esc(SEGMENTS[g.seg].name)} ${g.days[0].date}–${g.days[g.days.length-1].date}</span>`).join("");
+// booked state: shared db (artifact) or this browser (fallback); overrides the static status
+const BOOKED = {}; // id -> {done, at, files:[{id,name,type,size}]}
+let ASSETS = null, ASSETS_CHECKED = false; const UPLOADING = {}; const ARMED = {};
+let canTick = false, tickWhere = "";
+const isDone = b => BOOKED[b.id] ? !!BOOKED[b.id].done : b.status === "已訂";
+const pendingCount = () => BOOKINGS.filter(b => !isDone(b)).length;
+function updateCount(){ const n = pendingCount(); document.getElementById("bkCount").textContent = n ? n : "✓"; }
+updateCount();
+let DB = null;
+const LS_KEY = "tk-booked";
+function loadLocal(){ try { Object.assign(BOOKED, JSON.parse(localStorage.getItem(LS_KEY) || "{}")); } catch(e){} }
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(BOOKED)); } catch(e){} }
+async function toggleBooked(id){
+  const b = BOOKINGS.find(x => x.id === id); if (!b || !canTick) return;
+  const next = Object.assign({}, BOOKED[id] || {}, {done: !isDone(b), at: new Date().toISOString()});
+  await saveBooking(id, next);
+}
+async function saveBooking(id, next){
+  BOOKED[id] = next; updateCount(); render();
+  if (DB) {
+    try { await DB.doc("bookings/" + id).set(next); }
+    catch(e){ if (e && e.code === "invalid_argument") { canTick = false; tickWhere = "你目前只有檢視權限，不能勾選"; render(); } }
+  } else saveLocal();
+}
+const OKTYPES = ["image/png","image/jpeg","image/gif","image/webp","application/pdf"];
+async function toJpeg(file){
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 3000 / Math.max(bmp.width, bmp.height));
+  const cv = document.createElement("canvas"); cv.width = Math.round(bmp.width * scale); cv.height = Math.round(bmp.height * scale);
+  cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("encode")), "image/jpeg", 0.88));
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", {type:"image/jpeg"});
+}
+const upMsg = {};
+async function uploadFiles(id, fileList){
+  if (!ASSETS || !DB) return;
+  const files = [...fileList]; if (!files.length) return;
+  UPLOADING[id] = true; upMsg[id] = ""; render();
+  const cur = Object.assign({files:[]}, BOOKED[id] || {});
+  const added = [];
+  for (let f of files) {
+    let type = f.type;
+    // phones: HEIC/HEIF or oversized photos -> re-encode as JPEG in the browser
+    if ((/^image\//.test(type) && !OKTYPES.includes(type)) || /\.(heic|heif)$/i.test(f.name) || (/^image\//.test(type) && f.size > 8 * 1024 * 1024)) {
+      try { f = await toJpeg(f); type = "image/jpeg"; } catch(e) {}
+    }
+    if (!type) { const ext = (f.name.split(".").pop() || "").toLowerCase(); type = {pdf:"application/pdf",png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",gif:"image/gif",webp:"image/webp"}[ext] || ""; }
+    if (!OKTYPES.includes(type)) { upMsg[id] = `「${f.name}」格式不支援，請上傳 JPG、PNG、WebP、GIF 或 PDF（iPhone 的 HEIC 照片請先轉成 JPG 或截圖）`; continue; }
+    if (f.size > 20 * 1024 * 1024) { upMsg[id] = `「${f.name}」超過 20 MB，請壓縮後再上傳`; continue; }
+    try { const r = await ASSETS.upload(f, {type}); added.push({id:r.id, name:f.name, type, size:r.sizeBytes}); }
+    catch(e) { upMsg[id] = e && e.code === "quota_or_state" ? "空間已滿，請先刪掉不需要的附件" : e && e.code === "rate_limited" ? "上傳太頻繁，請稍後再試" : `「${f.name}」上傳失敗，請再試一次`; }
+  }
+  UPLOADING[id] = false;
+  if (added.length) {
+    const next = Object.assign({}, cur, {files: (cur.files || []).concat(added)});
+    if (!isDone(BOOKINGS.find(x => x.id === id) || {})) { next.done = true; next.at = new Date().toISOString(); }
+    await saveBooking(id, next);
+  } else render();
+}
+async function removeFile(id, fid){
+  if (!ASSETS || !DB) return;
+  if (ARMED[id + fid] !== true) { ARMED[id + fid] = true; render(); setTimeout(() => { if (ARMED[id + fid]) { delete ARMED[id + fid]; render(); } }, 4000); return; }
+  delete ARMED[id + fid];
+  const cur = Object.assign({files:[]}, BOOKED[id] || {});
+  await saveBooking(id, Object.assign({}, cur, {files: (cur.files || []).filter(f => f.id !== fid)}));
+  try { await ASSETS.delete(fid); } catch(e) {}
+}
+(async () => {
+  await new Promise(r => setTimeout(r, 0)); // let the rest of the script define render() first
+  const c = window.claude;
+  const db = c && c.use ? await c.use("db") : null;
+  if (!db) { canTick = false; tickWhere = "這裡不能勾選，勾選和最新的預訂狀態請看 Claude 上的完整版"; updateCount(); render(); return; }
+  DB = db;
+  const user = await c.use("user");
+  const w = user ? await user.can("data.write") : null;
+  canTick = w !== false; tickWhere = canTick ? "勾選會同步給所有能編輯的人" : "你目前只有檢視權限，不能勾選";
+  ASSETS = await c.use("assets"); ASSETS_CHECKED = true;
+  db.collection("bookings").onSnapshot(snap => {
+    snap.docs.forEach(d => { const v = d.data(); if (v) BOOKED[d.id] = {done: !!v.done, at: v.at, files: Array.isArray(v.files) ? v.files : []}; });
+    updateCount(); render();
+  }, () => {});
+  render();
+})();
+
+/* 檔案檢視：在頁面內開啟圖片和 PDF（App 裡開新分頁常常是空白） */
+let pdfLib = null;
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+async function getPdfLib(){
+  if (pdfLib) return pdfLib;
+  const base = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  await loadScript(base + "pdf.min.js");
+  await loadScript(base + "pdf.worker.min.js"); // 在主執行緒跑，不另開 worker
+  pdfLib = window.pdfjsLib; pdfLib._cmap = base + "cmaps/";
+  return pdfLib;
+}
+let viewerData = null;
+async function openViewer(id, type, name){
+  closeViewer();
+  const ov = document.createElement("div"); ov.className = "viewer"; ov.id = "viewer";
+  ov.innerHTML = `<div class="vbar"><b></b><button data-vdl hidden>下載</button><button data-vclose>關閉</button></div><div class="vbody"><div class="vmsg">載入中…</div></div>`;
+  ov.querySelector("b").textContent = name;
+  document.body.appendChild(ov); document.body.style.overflow = "hidden";
+  const body = ov.querySelector(".vbody");
+  try {
+    const r = await fetch("/_blob/" + id); if (!r.ok) throw new Error("http " + r.status);
+    const buf = await r.arrayBuffer(); viewerData = {buf, name, type};
+    window.claude?.use && window.claude.use("downloads").then(d => { if (d && document.getElementById("viewer") === ov) { viewerData.dl = d; ov.querySelector("[data-vdl]").hidden = false; } });
+    if (/^image\//.test(type)) {
+      const img = new Image(); img.src = URL.createObjectURL(new Blob([buf], {type})); img.alt = name;
+      body.innerHTML = ""; body.appendChild(img);
+    } else {
+      const lib = await getPdfLib();
+      const pdf = await lib.getDocument({data: new Uint8Array(buf.slice(0)), cMapUrl: lib._cmap, cMapPacked: true}).promise;
+      body.innerHTML = "";
+      const w = Math.min(body.clientWidth - 24, 900), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      for (let i = 1; i <= pdf.numPages; i++) {
+        if (document.getElementById("viewer") !== ov) return;
+        const page = await pdf.getPage(i);
+        const vp0 = page.getViewport({scale: 1}); const vp = page.getViewport({scale: w / vp0.width * dpr});
+        const cv = document.createElement("canvas"); cv.width = vp.width; cv.height = vp.height; cv.style.width = (vp.width / dpr) + "px";
+        body.appendChild(cv);
+        await page.render({canvasContext: cv.getContext("2d"), viewport: vp}).promise;
+      }
+    }
+  } catch(e) {
+    body.innerHTML = `<div class="vmsg">打不開這個檔案。<br>如果你不是這個行程頁的擁有者或編輯者，可能沒有權限看附件。</div>`;
+  }
+}
+function closeViewer(){ const ov = document.getElementById("viewer"); if (ov) { ov.remove(); document.body.style.overflow = ""; } viewerData = null; }
+async function downloadViewer(){
+  if (!viewerData || !viewerData.dl) return;
+  let fn = viewerData.name; if (!/\.[a-z0-9]+$/i.test(fn)) fn += viewerData.type === "application/pdf" ? ".pdf" : ".jpg";
+  try { await viewerData.dl.save({filename: fn, data: new Blob([viewerData.buf], {type: viewerData.type})}); } catch(e) {}
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeViewer(); });
+
+const dayById = id => DAYS.find(d => d.id === id);
+const TODAY = (() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); })();
+const dayDate = d => new Date(sy, sm - 1, sd + d.i);
+function opensInfo(b){
+  const d = dayById(b.day);
+  if (!b.opens || !d) return {open:true, at:0, label:""};
+  const o = new Date(dayDate(d)); o.setDate(o.getDate() - b.opens);
+  const open = o <= TODAY;
+  return {open, at:o.getTime(), label: open ? "已開放預訂" : `${o.getMonth() + 1}/${o.getDate()} 開放預訂`};
+}
+function todoRow(b, showDay){
+  const d = dayById(b.day); const done = isDone(b); const oi = opensInfo(b);
+  const dayBtn = showDay && d ? `<button class="on" data-go="${d.i}" style="--c:${d.c};color:${d.c}">${d.id} · ${d.date}</button>` : "";
+  const at = done && BOOKED[b.id] && BOOKED[b.id].at ? new Date(BOOKED[b.id].at) : null;
+  const label = done ? "已訂" + (at ? `<em>${at.getMonth() + 1}/${at.getDate()}</em>` : "") : oi.open ? "待訂" : "未開放";
+  const st = `<button class="tick ${done ? "on-done" : ""}" data-tick="${esc(b.id)}" role="checkbox" aria-checked="${done}" ${canTick ? "" : "disabled"} aria-label="${esc(b.item)}：${done ? "已訂" : "未訂"}"><span class="box"></span><span class="st ${done ? "done-s" : oi.open ? "todo-s" : "wait-s"}">${label}</span></button>`;
+  const meta = [b.where ? `去哪訂：${esc(b.where)}` : "", !done && oi.label ? `<b class="${oi.open ? "" : "soon"}">${oi.label}</b>` : "", b.note ? esc(b.note) : ""].filter(Boolean).join("　");
+  const gyg = b.gyg ? `<a class="gyg" href="${esc(b.gyg.url)}" target="_blank" rel="noopener">在 ${esc(b.gyg.site || "GetYourGuide")} 購買<span>${esc(b.gyg.price)}${b.gyg.rating ? "・★ " + esc(b.gyg.rating) : ""}</span></a>` : "";
+  const fl = (BOOKED[b.id] && BOOKED[b.id].files) || [];
+  const files = fl.length || (ASSETS && DB) ? `<div class="files">${fl.map(f => {
+      const u = "/_blob/" + f.id; const img = /^image\//.test(f.type);
+      const del = ASSETS ? `<button class="fdel ${ARMED[b.id + f.id] ? "armed" : ""}" data-fdel="${esc(b.id)}|${esc(f.id)}" aria-label="刪除 ${esc(f.name)}">${ARMED[b.id + f.id] ? "確定刪除？" : "×"}</button>` : "";
+      return `<span class="file">${img ? `<a href="${u}" data-view="${esc(f.id)}|${esc(f.type)}|${esc(f.name)}"><img src="${u}" alt="${esc(f.name)}" loading="lazy"></a>` : `<a class="pdf" href="${u}" data-view="${esc(f.id)}|${esc(f.type)}|${esc(f.name)}">PDF・${esc(f.name)}</a>`}${del}</span>`;
+    }).join("")}${ASSETS && DB ? `<label class="up">${UPLOADING[b.id] ? "上傳中…" : "＋ 上傳確認信／票券"}<input type="file" accept="image/*,application/pdf,.pdf" multiple data-up="${esc(b.id)}" ${UPLOADING[b.id] ? "disabled" : ""}></label>` : ""}${upMsg[b.id] ? `<span class="upmsg">${esc(upMsg[b.id])}</span>` : ""}</div>` : "";
+  return `<div class="todo ${done ? "is-done" : ""}">${st}<div><span class="itm">${esc(b.item)}</span>${meta ? `<small>${meta}</small>` : ""}${gyg}${files}</div>${dayBtn}</div>`;
+}
+function legRow(l, showDay){
+  const d = dayById(l.day);
+  const dayBtn = showDay && d ? `<button class="on" data-go="${d.i}" style="color:${d.c}">${d.id} · ${d.date}</button>` : "";
+  return `<div class="leg" style="--c:${d ? d.c : "var(--ink)"}"><div class="leg-top"><span class="mode">${esc(l.mode)}</span><span class="route">${esc(l.from)} → ${esc(l.to)}</span>${dayBtn}</div><div class="how">${esc(l.how)}</div>${l.tip ? `<div class="ltip">${esc(l.tip)}</div>` : ""}</div>`;
+}
+
+function renderStrip(){
+  const el = document.getElementById("strip");
+  el.hidden = state.tab !== "day";
+  el.innerHTML = DAYS.map(d => `<button class="chip" data-go="${d.i}" style="--c:${d.c}" aria-current="${d.i === state.day}"><div class="d">${d.id}</div><div class="dt">${d.date}</div><div class="wk">${d.wk}・${esc(d.short)}</div></button>`).join("");
+  const cur = el.querySelector('[aria-current="true"]');
+  if (cur && !el.hidden) { const r = cur.offsetLeft - el.clientWidth / 2 + cur.clientWidth / 2; el.scrollTo({left: r, behavior: "smooth"}); }
+}
+
+function renderDay(){
+  const d = DAYS[state.day]; const prev = DAYS[state.day - 1]; const next = DAYS[state.day + 1];
+  const todos = BOOKINGS.filter(b => b.day === d.id);
+  const side = groups.map(g => `<div class="sgroup" style="--c:${COLORS[g.seg]}"><h3>${esc(SEGMENTS[g.seg].name)}<small>${g.days.length} 天</small></h3>${
+    g.days.map(x => `<button class="srow" data-go="${x.i}" aria-current="${x.i === state.day}" style="--c:${x.c}"><span class="dt">${x.date}<small>${x.id} · ${x.wk}</small></span><span class="nm">${esc(x.short)}</span></button>`).join("")}</div>`).join("");
+  return `<div class="layout"><aside class="side">${side}</aside>
+  <article class="day" style="--c:${d.c}">
+    <div class="day-head"><div class="dlabel">${d.id} / ${DAYS.length}<span>${d.date}（${d.wk}）· ${esc(SEGMENTS[d.seg].name)}</span></div>
+      <div class="nav"><button data-go="${state.day - 1}" ${prev ? "" : "disabled"} aria-label="前一天">← 前一天</button><button data-go="${state.day + 1}" ${next ? "" : "disabled"} aria-label="後一天">後一天 →</button></div></div>
+    <h2>${esc(d.city)}</h2>
+    <div class="theme">${esc(d.theme)}</div>
+    ${routeUrl(d) ? `<a class="routebtn" href="${routeUrl(d)}" target="_blank" rel="noopener">在 Google 地圖看今天路線<span>${d.route.length} 個地點</span></a>` : ""}
+    <div id="daymap" class="map"></div><div class="mapleg"><span><i></i>包車</span><span>➤ 方向</span><span>數字＝當天順序</span><span>往返台灣的航班不畫在地圖上</span></div>
+    <dl class="facts"><div><dt>住宿</dt><dd>${esc(d.stay)}</dd></div><div><dt>交通</dt><dd>${esc(d.transport)}</dd></div><div><dt>氣溫</dt><dd>${esc(d.temp)}</dd></div></dl>
+    <div class="sec-t">今日行程</div>
+    <ol class="plan">${d.plan.map(p => `<li><div class="tm">${esc(p.t)}</div><div><div class="pt">${esc(p.title)}</div><div class="pd">${esc(p.desc)}</div>${p.map ? `<a class="maplink" href="${mapUrl(p.map)}" target="_blank" rel="noopener">在 Google 地圖開啟</a>` : ""}</div></li>`).join("")}</ol>
+    ${d.hl?.length ? `<div class="sec-t">亮點</div><div class="hl">${d.hl.map(x => `<div><span class="tag">${esc(x.tag)}</span><b>${esc(x.title)}</b><p>${esc(x.desc)}</p></div>`).join("")}</div>` : ""}
+    ${d.tips ? `<div class="sec-t">提醒</div><div class="tips">${esc(d.tips)}</div>` : ""}
+    ${(() => { const ls = LEGS.filter(l => l.day === d.id); return ls.length ? `<div class="sec-t">這天的交通</div><div class="legs">${ls.map(l => legRow(l, false)).join("")}</div>` : ""; })()}
+    ${todos.length ? `<div class="sec-t">這天要先訂</div><div class="daytodo">${todos.map(b => todoRow(b, false)).join("")}</div>` : ""}
+    <div class="foot-nav">${prev ? `<button data-go="${prev.i}"><small>← ${prev.id} · ${prev.date}</small>${esc(prev.short)}</button>` : ""}${next ? `<button data-go="${next.i}"><small>${next.id} · ${next.date} →</small>${esc(next.short)}</button>` : ""}</div>
+  </article></div>`;
+}
+
+function routeSvg(){
+  // 示意圖（不按比例）：上野為基地，往成田、羽田、熱海的車程
+  const base = [120, 70];
+  const pts = [
+    {n:"成田機場", x:205, y:40, t:"約 1–1.5 小時", d:"D1 接機", a:"end", lx:205, ly:22},
+    {n:"羽田機場", x:150, y:150, t:"約 25 分", d:"D5 回家", a:"start", lx:160, ly:154},
+    {n:"熱海", x:30, y:185, t:"約 2 小時", d:"D3 一日遊", a:"start", lx:42, ly:189},
+  ];
+  const line = p => `<line x1="${base[0]}" y1="${base[1]}" x2="${p.x}" y2="${p.y}" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+  const mid = p => `<text x="${(base[0] + p.x) / 2 + (p.n === "熱海" ? -8 : 6)}" y="${(base[1] + p.y) / 2 + (p.n === "成田機場" ? 14 : 0)}" font-size="10" fill="var(--muted)" text-anchor="${p.n === "熱海" ? "end" : "start"}" font-family="var(--f-mono)">${p.t}</text>`;
+  const dot = p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--surface)" stroke="var(--ueno)" stroke-width="2"/><text x="${p.lx}" y="${p.ly}" text-anchor="${p.a}" font-size="12" font-weight="700" fill="var(--ink)">${p.n}<tspan x="${p.lx}" dy="13" font-size="10" font-weight="400" fill="var(--muted)">${p.d}</tspan></text>`;
+  return `<svg viewBox="0 0 230 215" role="img" aria-label="以上野為基地的行程示意圖">${pts.map(line).join("")}${pts.map(mid).join("")}${pts.map(dot).join("")}
+    <circle cx="${base[0]}" cy="${base[1]}" r="8" fill="var(--ueno)" stroke="var(--bg)" stroke-width="2"/>
+    <text x="${base[0] - 12}" y="${base[1] - 6}" text-anchor="end" font-size="13" font-weight="700" fill="var(--ink)">上野・住 4 晚</text>
+    <text x="${base[0] - 12}" y="${base[1] + 9}" text-anchor="end" font-size="10" fill="var(--muted)">市區都在 20 分鐘內</text></svg>`;
+}
+
+function renderOv(){
+  const rows = DAYS.map(d => `<button class="ovrow" data-go="${d.i}" data-tabgo="day" style="--c:${d.c}"><span class="dt">${d.date}<small>${d.id} · ${d.wk}</small></span><span><span class="city">${esc(d.city)}</span><div class="acts">${d.plan.map(p => esc(p.title)).join(" · ")}</div></span><span class="stay"><b>住宿</b>${esc(d.stay)}</span></button>`).join("");
+  const sum = groups.map(g => `<div style="--c:${COLORS[g.seg]}"><b>${esc(SEGMENTS[g.seg].name)}</b><span>${g.days[0].date}–${g.days[g.days.length-1].date} · ${g.days.length} 天</span></div>`).join("");
+  return `<div class="ov"><div class="ovlist">${rows}</div><div class="routebox"><div id="ovmap" class="map"></div><div class="cap">4 晚都住上野，每天包車出門、回同一間飯店。點左邊任一天看詳細。</div><div class="segsum">${sum}</div><table class="rooms" style="--c:var(--ueno)"><tbody>${ROOMS.map(r => `<tr><td>${esc(r.r)}</td><td><b>${esc(r.who)}</b><small>${esc(r.type)}・${esc(r.role)}</small></td></tr>`).join("")}</tbody></table><div class="cap">4 間要求同樓層、連號、靠電梯（訂房時備註，飯店不保證）。</div></div></div>`;
+}
+
+function renderTr(){
+  const rows = groups.map(g => {
+    const ids = g.days.map(d => d.id);
+    const ls = LEGS.filter(l => ids.includes(l.day));
+    return ls.length ? `<section class="trgroup" style="--c:${COLORS[g.seg]}"><h3>${esc(SEGMENTS[g.seg].name)}<small>${g.days[0].date}–${g.days[g.days.length-1].date}</small></h3><div class="legs">${ls.map(l => legRow(l, true)).join("")}</div></section>` : "";
+  }).join("");
+  return `<div class="bk"><p class="lead">全程 ${LEGS.length} 段移動，照時間順序排。大部分當天搭就好，要先訂的機票和火車在「預訂與準備」裡。</p>${rows}</div>`;
+}
+
+function renderBk(){
+  const done = BOOKINGS.length - pendingCount();
+  const rank = b => opensInfo(b).open ? 0 : 1;
+  const sorted = BOOKINGS.slice().sort((a, b) => rank(a) - rank(b) || (rank(a) === 1 ? opensInfo(a).at - opensInfo(b).at : 0) || (+a.day.slice(1)) - (+b.day.slice(1)));
+  const nowOpen = BOOKINGS.filter(b => !isDone(b) && rank(b) === 0).length;
+  return `<div class="bk">
+  <div class="sec-t" style="margin-top:4px">要預訂的 ${BOOKINGS.length} 項</div>
+  <div class="prog"><span>${done} / ${BOOKINGS.length} 已訂・${nowOpen} 項現在就能訂</span><div class="bar"><span style="width:${BOOKINGS.length ? done / BOOKINGS.length * 100 : 0}%"></span></div></div>
+  ${DB && !ASSETS && ASSETS_CHECKED ? `<p class="upnote">這個裝置或帳號目前不能上傳檔案：只有擁有者和編輯者可以上傳；如果是手機 App 不支援，請改用電腦，或用手機瀏覽器登入 claude.ai 開啟。</p>` : ""}
+  <div class="list">${sorted.map(b => todoRow(b, true)).join("")}</div>
+  <p class="note">買好一項就點左邊的框框打勾，打勾後位置不會變；${ASSETS && DB ? "每一項都可以上傳確認信或票券（圖片或 PDF），上傳後會自動打勾。" : ""}${esc(tickWhere)}。排序：現在就能訂的在最上面，接著是還沒開放的（依開放日期）。</p>
+  <div class="sec-t">導遊與跟團</div>
+  <div class="prep">${GUIDES.map(g => `<div><dt>${esc(g.t)}<span class="need">${esc(g.need)}</span></dt><dd>${esc(g.d)}</dd></div>`).join("")}</div>
+  <div class="sec-t">出發前準備</div>
+  <div class="prep">${PREP.map(p => `<div><dt>${esc(p.t)}</dt><dd>${esc(p.d)}</dd></div>`).join("")}</div>
+  </div>`;
+}
+
+function renderSv(){
+  const cur = COUNTRIES.find(c => c.k === state.country) || COUNTRIES[0];
+  const tabs = COUNTRIES.map(c => `<button class="ctab" data-country="${esc(c.k)}" style="--c:${COLORS[c.seg]}" aria-selected="${c.k === cur.k}">${esc(c.k)}<span class="n">${REFS.filter(r => r.country === c.k).length}</span></button>`).join("");
+  const list = REFS.filter(r => r.country === cur.k);
+  const card = r => {
+    const items = r.items && r.items.length ? `<ul>${r.items.map(it => `<li><b>${esc(it.n)}</b>${it.d ? ` <small>${esc(it.d)}</small>` : ""}${it.map ? ` <a class="maplink" href="${mapUrl(it.map)}" target="_blank" rel="noopener">地圖</a>` : ""}</li>`).join("")}</ul>` : "";
+    return `<div class="ref" style="--c:${COLORS[cur.seg]}"><div class="ref-top"><span class="mode">${esc(r.type)}</span><b>${esc(r.title)}</b></div>
+      <div class="rn">${esc(r.area)}${r.note ? "・" + esc(r.note) : ""}</div>${items}
+      ${r.pending ? `<div class="pend">${esc(r.pending)}</div>` : ""}
+      ${r.url ? `<a class="src" href="${esc(r.url)}" target="_blank" rel="noopener">看原文（${esc(r.src || "連結")}）</a>` : ""}</div>`;
+  };
+  return `<div class="bk"><p class="lead">從 IG、文章收藏的推薦，依國家分類，方便回顧。</p><div class="ctabs" role="tablist">${tabs}</div>
+  ${list.length ? `<div class="refs">${list.map(card).join("")}</div>` : `<div class="empty">${esc(cur.k)}還沒有收藏的指南。</div>`}</div>`;
+}
+
+function render(){
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === state.tab));
+  const main = document.getElementById("main");
+  main.innerHTML = state.tab === "day" ? renderDay() : state.tab === "ov" ? renderOv() : state.tab === "tr" ? renderTr() : state.tab === "sv" ? renderSv() : renderBk();
+  document.getElementById("svCount").textContent = REFS.length || "";
+  renderStrip();
+  store.set("tk-day", state.day); store.set("tk-tab", state.tab); store.set("tk-country", state.country);
+}
+function go(i, toDay){
+  if (i < 0 || i >= DAYS.length) return;
+  state.day = i; if (toDay) state.tab = "day";
+  render();
+  const mainTop = document.getElementById("main").getBoundingClientRect().top + scrollY - 120;
+  if (scrollY > mainTop) scrollTo({top: Math.max(0, mainTop), behavior: "smooth"});
+}
+document.addEventListener("click", e => {
+  const vw = e.target.closest("[data-view]"); if (vw) { e.preventDefault(); const [id, type, ...n] = vw.dataset.view.split("|"); openViewer(id, type, n.join("|")); return; }
+  if (e.target.closest("[data-vclose]")) { closeViewer(); return; }
+  if (e.target.closest("[data-vdl]")) { downloadViewer(); return; }
+  const tk = e.target.closest("[data-tick]"); if (tk) { toggleBooked(tk.dataset.tick); return; }
+  const fd = e.target.closest("[data-fdel]"); if (fd) { const [bid, fid] = fd.dataset.fdel.split("|"); removeFile(bid, fid); return; }
+  const ct = e.target.closest("[data-country]"); if (ct) { state.country = ct.dataset.country; render(); return; }
+  const tab = e.target.closest(".tab"); if (tab) { state.tab = tab.dataset.tab; render(); return; }
+  const g = e.target.closest("[data-go]"); if (g) go(+g.dataset.go, true);
+});
+document.addEventListener("change", e => {
+  const inp = e.target.closest && e.target.closest("input[data-up]");
+  if (inp && inp.files) uploadFiles(inp.dataset.up, inp.files);
+});
+document.addEventListener("keydown", e => {
+  if (state.tab !== "day" || e.target.closest("input,textarea")) return;
+  if (e.key === "ArrowRight") go(state.day + 1); if (e.key === "ArrowLeft") go(state.day - 1);
+});
+// swipe on day view (phones)
+let sx = null, sy0 = null;
+document.getElementById("main").addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy0 = e.touches[0].clientY; }, {passive:true});
+document.getElementById("main").addEventListener("touchend", e => {
+  if (sx === null || state.tab !== "day") return;
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy0; sx = null;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) go(state.day + (dx < 0 ? 1 : -1));
+}, {passive:true});
+render();
+</script>
+
+
+<script>
+const COORDS = {"Narita International Airport": [35.772, 140.3929], "Ueno Station": [35.7138, 139.7773], "Sensoji Temple": [35.7148, 139.7967], "Nakamise Shopping Street": [35.7118, 139.7964], "Ueno Park": [35.7156, 139.7745], "Tokyo National Museum": [35.7189, 139.7765], "KITTE Marunouchi": [35.6795, 139.7645], "Itokawa Promenade Atami": [35.0958, 139.0752], "Atami Baien": [35.1086, 139.0569], "Ginza Mitsukoshi": [35.6717, 139.7655], "Azabudai Hills": [35.6606, 139.7404], "Hama-rikyu Gardens": [35.66, 139.7633], "Haneda Airport": [35.5494, 139.7798], "Taipei Taoyuan Airport": [25.0777, 121.2328], "Taipei Songshan Airport": [25.0697, 121.5517]};
+const PLABEL = {"Narita International Airport": "成田機場", "Ueno Station": "上野（住宿）", "Sensoji Temple": "淺草寺", "Nakamise Shopping Street": "仲見世通", "Ueno Park": "上野公園", "Tokyo National Museum": "東京國立博物館", "KITTE Marunouchi": "KITTE 丸之內", "Itokawa Promenade Atami": "糸川遊步道", "Atami Baien": "熱海梅園", "Ginza Mitsukoshi": "銀座三越", "Azabudai Hills": "麻布台之丘", "Hama-rikyu Gardens": "濱離宮", "Haneda Airport": "羽田機場", "Taipei Taoyuan Airport": "桃園機場", "Taipei Songshan Airport": "松山機場"};
+const DAYHEX = ["#B4472E","#A9741A","#16807C","#A23E6A","#2F6DB0","#5D6878","#2E7D4F"];
+let _maps = [];
+function dayPath(d){
+  // [[name, mode]] ; drop points outside Japan (flights to/from Taiwan) so the map stays on Kanto
+  let pts = d.hops ? d.hops.slice() : (d.route || []).map((n, i) => [n, i ? (d.rmode === "walking" ? "walk" : "car") : "start"]);
+  pts = pts.filter(p => COORDS[p[0]] && COORDS[p[0]][0] > 30);
+  return pts;
+}
+function arrowAt(map, a, b, color){
+  const A = L.CRS.EPSG3857.project(L.latLng(a)), B = L.CRS.EPSG3857.project(L.latLng(b));
+  const t = .42, P = L.CRS.EPSG3857.unproject(L.point(A.x + (B.x - A.x) * t, A.y + (B.y - A.y) * t));
+  const ang = Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI; // EPSG3857 y grows north; CSS rotate is clockwise
+  L.marker(P, {interactive:false, icon:L.divIcon({className:"", html:`<div class="arw" style="color:${color};transform:rotate(${-ang}deg)">➤</div>`, iconSize:[16,16], iconAnchor:[8,8]})}).addTo(map);
+}
+function seg(map, a, b, mode, color){
+  const st = mode === "train" ? {weight:5} : mode === "boat" ? {weight:3, dashArray:"2 6"} : mode === "flight" ? {weight:2.5, dashArray:"1 6"} : {weight:3, dashArray:"7 6"};
+  if (mode === "flight") {
+    const A = L.CRS.EPSG3857.project(L.latLng(a)), B = L.CRS.EPSG3857.project(L.latLng(b));
+    const C = L.point((A.x + B.x) / 2 - (B.y - A.y) * .25, (A.y + B.y) / 2 + (B.x - A.x) * .25);
+    const pts = []; for (let i = 0; i <= 30; i++) { const t = i / 30; pts.push(L.CRS.EPSG3857.unproject(L.point((1-t)*(1-t)*A.x + 2*(1-t)*t*C.x + t*t*B.x, (1-t)*(1-t)*A.y + 2*(1-t)*t*C.y + t*t*B.y))); }
+    L.polyline(pts, Object.assign({color, opacity:.9}, st)).addTo(map);
+    L.marker(pts[15], {interactive:false, icon:L.divIcon({className:"", html:`<div class="arw" style="color:${color};font-size:18px">✈</div>`, iconSize:[18,18], iconAnchor:[9,9]})}).addTo(map);
+    return;
+  }
+  L.polyline([a, b], Object.assign({color, opacity:.9}, st)).addTo(map);
+  arrowAt(map, a, b, color);
+}
+function baseMap(el){
+  const m = L.map(el, {scrollWheelZoom:false, attributionControl:true});
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, attribution:"© OpenStreetMap"}).addTo(m);
+  _maps.push(m); return m;
+}
+function pins(m, list, color){
+  // list: [{name, n}] ; same place visited several times -> numbers side by side, small dot at the spot
+  const by = {}; list.forEach(p => (by[p.name] = by[p.name] || []).push(p.n));
+  Object.entries(by).forEach(([name, ns]) => {
+    const ll = COORDS[name];
+    if (ns.length > 1) L.marker(ll, {interactive:false, icon:L.divIcon({className:"", html:`<div class="pdot" style="background:${color}"></div>`, iconSize:[12,12], iconAnchor:[6,6]})}).addTo(m);
+    ns.forEach((n, i) => {
+      const off = ns.length > 1 ? (i - (ns.length - 1) / 2) * 28 : 0;
+      L.marker(ll, {icon:L.divIcon({className:"", html:`<div class="pin" style="background:${color}">${n}</div>`, iconSize:[28,28], iconAnchor:[14 - off, ns.length > 1 ? 34 : 14]})})
+        .bindTooltip(PLABEL[name] || name).addTo(m);
+    });
+  });
+}
+function drawMaps(){
+  if (!window.L) return;
+  _maps.forEach(m => m.remove()); _maps = [];
+  const dm = document.getElementById("daymap");
+  if (dm) {
+    const d = DAYS[state.day], pts = dayPath(d), color = DAYHEX[d.i % DAYHEX.length];
+    if (pts.length) {
+      const m = baseMap(dm);
+      for (let i = 1; i < pts.length; i++) seg(m, COORDS[pts[i-1][0]], COORDS[pts[i][0]], pts[i][1], color);
+      pins(m, pts.map((p, i) => ({name:p[0], n:i + 1})), color);
+      const b = L.latLngBounds(pts.map(p => COORDS[p[0]]));
+      pts.length > 1 ? m.fitBounds(b, {padding:[36,36], maxZoom:15}) : m.setView(b.getCenter(), 14);
+    }
+  }
+  const om = document.getElementById("ovmap");
+  if (om) {
+    const m = baseMap(om); const all = [];
+    DAYS.forEach(d => {
+      const pts = dayPath(d), color = DAYHEX[d.i % DAYHEX.length];
+      for (let i = 1; i < pts.length; i++) seg(m, COORDS[pts[i-1][0]], COORDS[pts[i][0]], pts[i][1], color);
+      pts.forEach(p => all.push(COORDS[p[0]]));
+      // one pin per place per day, labelled with the day
+      const seen = new Set();
+      pts.forEach(p => { if (seen.has(p[0]) || p[0] === "Ueno Station") return; seen.add(p[0]);
+        L.marker(COORDS[p[0]], {icon:L.divIcon({className:"", html:`<div class="pin" style="background:${color};font-size:10px">${d.id}</div>`, iconSize:[28,28], iconAnchor:[14,14]})}).bindTooltip(`${d.id}・${PLABEL[p[0]] || p[0]}`).addTo(m); });
+    });
+    L.marker(COORDS["Ueno Station"], {icon:L.divIcon({className:"", html:`<div class="pin" style="background:#18212E">住</div>`, iconSize:[28,28], iconAnchor:[14,14]})}).bindTooltip("上野（住 4 晚）").addTo(m);
+    m.fitBounds(L.latLngBounds(all), {padding:[30,30]});
+  }
+}
+const _render0 = render;
+render = function(){ _render0(); drawMaps(); };
+drawMaps();
+</script>
+</body></html>
