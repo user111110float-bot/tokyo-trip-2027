@@ -320,42 +320,44 @@ const ROOMS = [
 ];
 
 const DAYS = [
-  { seg:"ueno", city:"抵達成田 → 上野・淺草", short:"抵達・淺草", theme:"小年夜・先安頓、再散步",
-    route:["Ueno Station","Sensoji Temple","Nakamise Shopping Street","Ueno Station"], rmode:"driving",
-    hops:[["Taipei Taoyuan Airport","start"],["Narita International Airport","flight"],["Ueno Station","car"],["Sensoji Temple","car"],["Ueno Station","car"]],
+  { seg:"ueno", city:"抵達成田 → 上野入住", short:"抵達・休息", theme:"小年夜・落地先休息，晚上就近吃",
+    route:["Narita International Airport","Ueno Station"], rmode:"driving",
+    hops:[["Taipei Taoyuan Airport","start"],["Narita International Airport","flight"],["Ueno Station","car"]],
     plan:[
       {t:"上午", title:"台灣起飛 → 成田", desc:"飛行約 3 小時，時間依訂到的航班；春節連假機位緊，越早訂越好"},
-      {t:"抵達後", title:"包車司機在入境大廳接機", desc:"10 人加行李，直接上中巴到飯店，不用轉電車；長輩先去機場廁所再上車", map:"Narita International Airport"},
-      {t:"約 1.5 小時後", title:"上野站旁飯店・入住", desc:"上野站旁；分房見「總覽」。行李集中在走廊，一次推進電梯", map:"Ueno Station"},
-      {t:"16:30", title:"淺草寺參拜", desc:"中巴開到雷門附近下車；參道平坦，參拜 15 分鐘就好。日落約 17:15，寶藏門和五重塔點燈很好看", map:"Sensoji Temple"},
-      {t:"17:15", title:"仲見世通・伴手禮", desc:"約 250 公尺的商店街，人形燒、仙貝邊走邊吃；春節期間人潮多，長輩走中間別脫隊", map:"Nakamise Shopping Street"},
-      {t:"18:30", title:"淺草或上野晚餐", desc:"10 人桌席，選有素食的店（餐廳待訂）；吃完包車回飯店，早點睡"},
+      {t:"抵達後", title:"大行李寄到飯店（AIRPORTER）", desc:"13:00 前在成田 JAL ABC 櫃台交件，晚上 19:00 後送到飯店櫃台；每人留一個隨身包放藥、換洗衣物和充電線"},
+      {t:"抵達後", title:"接機車在入境大廳等", desc:"只帶隨身包上車，直接到飯店，不用轉電車；長輩先去機場廁所再上車", map:"Narita International Airport"},
+      {t:"約 1–1.5 小時後", title:"上野站旁飯店・入住", desc:"JR 上野站淺草口走路 2 分鐘。15:00 才能入住，早到就先寄放行李（訂房時先問飯店）；分房見「總覽」", map:"Ueno Station"},
+      {t:"15:00", title:"回房休息", desc:"今天不排景點，長輩洗個澡、躺一下，把體力留給明天"},
+      {t:"18:00", title:"上野站一帶晚餐", desc:"走路幾分鐘就到，10 人桌席、有素食的店（餐廳待訂）"},
+      {t:"19:15", title:"便利商店補貨・早點睡（可選）", desc:"買水、明天早餐想吃的；想走走的人可以去阿美橫町逛一小段，長輩先回房"},
     ],
     hl:[
-      {tag:"長輩", title:"第一天不趕", desc:"只排一個景點，飛機坐完先休息，體力留給後面幾天"},
-      {tag:"拍照", title:"淺草寺黃昏", desc:"天快黑時寶藏門的大燈籠和五重塔點燈，人潮也比白天少一些"},
+      {tag:"長輩", title:"落地日只做一件事", desc:"接機、入住、休息、就近吃飯，不坐車跑景點"},
+      {tag:"方便", title:"飯店就在車站旁", desc:"吃飯、買東西都走路就到，累了隨時回房"},
     ],
-    tips:"日本比台灣快 1 小時。2/4 是台灣小年夜，春節期間淺草、銀座都會有很多華人遊客，集合點要先講好（例如「雷門大燈籠下」）。全家第一天就加入同一個 LINE 群組，開位置分享。",
-    stay:"上野站旁飯店・4 間（第 1 晚）", transport:"包車：成田接機 → 飯店 → 淺草 → 飯店", temp:"東京 2°C ~ 10°C・晚上冷" },
+    tips:"日本比台灣快 1 小時。今天只需要機場接送，不用包一整天車：包車一天是 9 小時，只接機很浪費，另外訂單程接機比較划算。大行李用 AIRPORTER 寄到飯店：要在 13:00 前交件，所以航班最好中午前落地；行李寄走了，接機坐 14 人座 Hiace（最多 11 人）就夠，車資比較便宜。沒趕上 13:00 就改成行李跟車，接機要訂大車。2/4 是台灣小年夜，全家今天就加入同一個 LINE 群組，開位置分享。",
+    stay:"上野站旁飯店・4 間（第 1 晚）", transport:"接機車：成田 → 飯店（單程）・晚餐走路", temp:"東京 2°C ~ 10°C・晚上冷" },
 
-  { seg:"ueno", city:"上野公園・東京車站", short:"上野・東京站", theme:"除夕・室內暖、晚上團圓",
-    route:["Ueno Station","Ueno Park","Tokyo National Museum","KITTE Marunouchi","Ueno Station"], rmode:"driving",
+  { seg:"ueno", city:"上野公園 → 淺草 → 晴空塔", short:"上野・淺草・晴空塔", theme:"除夕・一路往東玩，晚上回來團圓",
+    route:["Ueno Station","Ueno Park","Sensoji Temple","Tokyo Skytree","Ueno Station"], rmode:"driving",
     plan:[
-      {t:"09:30", title:"飯店早餐、慢慢出門", desc:"今天不用早起"},
-      {t:"10:30", title:"上野公園散步", desc:"從飯店走路或坐車都很近；園內道路平坦、長椅多，走 30 分鐘就好", map:"Ueno Park"},
-      {t:"11:15", title:"東京國立博物館（可選）", desc:"有暖氣的室內行程，本館有電梯、可借輪椅；累了就跳過", map:"Tokyo National Museum"},
-      {t:"12:30", title:"上野午餐", desc:"餐廳待訂；上野站、松坂屋一帶選擇多"},
-      {t:"14:00", title:"包車到 KITTE 丸之內", desc:"電梯直達 6 樓屋頂花園，免費看東京車站紅磚站舍；樓下商場可以逛、坐著休息", map:"KITTE Marunouchi"},
-      {t:"15:00", title:"東京車站一帶下午茶", desc:"坐著吃水果甜點（店家待訂，10 人要先訂位）"},
-      {t:"16:30", title:"回飯店休息、換衣服", desc:""},
-      {t:"18:30", title:"除夕年夜飯", desc:"全家 10 人在日本吃團圓飯；選有包廂或桌席、有素食的店（餐廳待訂，一定要先訂）"},
+      {t:"09:30", title:"走路去上野公園", desc:"飯店走過去約 10 分鐘；園內道路平坦、長椅多，走到不忍池繞一小段就好", map:"Ueno Park"},
+      {t:"10:15", title:"東京國立博物館（可選）", desc:"在公園北邊，有暖氣、有電梯，可借輪椅；不想進館就在公園多坐一下", map:"Tokyo National Museum"},
+      {t:"11:15", title:"包車司機到公園接，往淺草", desc:"約 15 分鐘，在雷門附近下車"},
+      {t:"11:30", title:"淺草寺・仲見世通", desc:"參道平坦，參拜 15 分鐘就好；仲見世通約 250 公尺，人形燒、仙貝、伴手禮。春節人多，集合點先講好（雷門大燈籠下）", map:"Sensoji Temple"},
+      {t:"12:30", title:"淺草午餐", desc:"10 人桌席、有素食的店（餐廳待訂）"},
+      {t:"14:00", title:"東京晴空塔・天望甲板", desc:"包車約 10 分鐘。電梯直上 350 公尺，室內有暖氣，可以坐著看整個東京；有無障礙電梯，可借輪椅", map:"Tokyo Skytree"},
+      {t:"15:30", title:"晴空街道下午茶・伴手禮", desc:"塔下的商場，坐下來吃甜點、補買伴手禮（店家待訂）"},
+      {t:"16:30", title:"包車回飯店休息", desc:"約 20 分鐘；回房換衣服，準備吃年夜飯"},
+      {t:"18:30", title:"除夕年夜飯", desc:"在飯店附近，走路就到；選有包廂或桌席、有素食的店（餐廳待訂，一定要先訂）"},
     ],
     hl:[
+      {tag:"路線", title:"一路往東，最後拉回來", desc:"上野 → 淺草 → 晴空塔越走越遠，不走回頭路，玩完包車一次載回飯店"},
       {tag:"團圓", title:"日本除夕年夜飯", desc:"今天是除夕，晚餐訂一間有包廂的店，全家坐下來好好吃一頓"},
-      {tag:"長輩", title:"一半時間在室內", desc:"博物館、KITTE、下午茶都有暖氣和座位，冷了隨時躲進去"},
     ],
-    tips:"東京國立博物館週一休館，今天（週五）有開。上野動物園的熊貓已經在 2026 年 1 月送回中國，不用特地排動物園。年夜飯在日本不是節日，平常的餐廳都有開，但 10 人要提早訂位，素食需求訂位時就講。",
-    stay:"上野站旁飯店（第 2 晚）", transport:"包車：市區接送（約 10:30–18:30）", temp:"東京 2°C ~ 10°C" },
+    tips:"東京國立博物館週一休館，今天（週五）有開。晴空塔平日 10:00 開門，先在官網買 14:00 左右的日時指定券，春節人多比較不用排。仲見世通的店大多 10 點以後才陸續開，所以淺草排在中午。上野動物園的熊貓已在 2026 年 1 月送回中國，不用特地去。年夜飯 10 人要提早訂位，素食需求訂位時就講。",
+    stay:"上野站旁飯店（第 2 晚）", transport:"走路到上野公園・包車 淺草 → 晴空塔 → 飯店（約 11:00–17:00）", temp:"東京 2°C ~ 10°C" },
 
   { seg:"ueno", city:"熱海一日遊・早櫻與梅花", short:"熱海早櫻", theme:"大年初一・看日本最早的櫻花",
     route:["Ueno Station","Itokawa Promenade Atami","Atami Baien","Ueno Station"], rmode:"driving",
@@ -407,7 +409,7 @@ const DAYS = [
       {tag:"賞花", title:"高樓間的梅林", desc:"濱離宮在汐留高樓旁邊，梅花配摩天大樓很有東京感"},
       {tag:"長輩", title:"順路就好", desc:"從上野去羽田剛好經過，不多繞路"},
     ],
-    tips:"濱離宮 9:00–17:00（16:30 停止入園），只有年底休園。菜花田要 2 月中旬才開，這次看梅花為主。羽田國際線建議起飛前 2.5 小時到；有買東西要退稅的再多留 30 分鐘（2026/11 起日本改成出境時退稅）。",
+    tips:"濱離宮 9:00–17:00（16:30 停止入園），只有年底休園。菜花田要 2 月中旬才開，這次看梅花為主。行李直接放包車上帶去羽田就好；AIRPORTER 雖然有飯店寄到羽田的服務，但要 9:00 前交件、16:00 後才能領，回程不划算。羽田國際線建議起飛前 2.5 小時到；有買東西要退稅的再多留 30 分鐘（2026/11 起日本改成出境時退稅）。",
     stay:"回到家", transport:"包車：飯店 → 濱離宮 → 羽田・飛機回台灣", temp:"東京 2°C ~ 10°C" },
 ];
 
@@ -416,9 +418,12 @@ const BOOKINGS = [
   {id:"flight-out", item:"去程機票 台灣 → 成田（2/4，10 人）", day:"D1", status:"待訂", where:"航空公司官網", note:"春節連假第一天，機位和票價都很搶；上午出發、中午前後到最好"},
   {id:"flight-home", item:"回程機票 羽田 → 台灣（2/8 下午，10 人）", day:"D5", status:"待訂", where:"航空公司官網", note:"羽田飛松山或桃園都有；選 15:30 以後起飛，上午才能去濱離宮"},
   {id:"hotel-ueno", item:"上野站旁飯店 4 間（2/4–2/8，4 晚）", day:"D1", status:"待訂", where:"飯店官網或訂房網站", note:"2 間雙床、2 間三人房；備註要求同樓層、連號、靠電梯，飯店不保證。已經訂好的話直接打勾"},
-  {id:"charter", item:"包車 5 天（Toyota Coaster 21 人座級，中文司機）", day:"D1", status:"待訂", where:"KKday", gyg:{site:"KKday", url:"https://www.kkday.com/en-us/product/138986-japan-customized-multi-day-charter-car-service-diy-free-travel-tokyo-osaka-nagoya-hokkaido", price:"整單報價", rating:"4.8（已售 6K+）"}, note:"14 人座 Hiace 最多只能坐 11 人，10 人加行李放不下，要選 21 人座。一天含 9 小時，超時 ¥10,000／小時付給司機；3 天前可免費取消。把 5 天行程貼給客服報價"},
+  {id:"transfer-narita", item:"成田機場接機 10 人（2/4，單程到上野）", day:"D1", status:"待訂", where:"KKday 或包車公司", note:"第一天只需接機，不用包一整天。大行李寄 AIRPORTER 的話 14 人座 Hiace 就夠；行李要跟車就訂 21 人座。訂單填航班號碼，延誤司機才會等"},
+  {id:"airporter-in", item:"AIRPORTER 行李寄送 成田 → 飯店（2/4）", day:"D1", status:"待訂", where:"AIRPORTER 官網或 VELTRA", gyg:{site:"VELTRA", url:"https://www.veltra.com/jp/japan/tokyo/a/185149", price:"每件 ¥2,400", rating:""}, note:"要先上網預約。13:00 前在成田第 1 航廈南翼 JAL ABC 櫃台交件，19:00 後送到飯店櫃台；每件 30 kg 以內，超過登機箱尺寸要加購；前一個營業日 0 點後取消要全額收費。預約前先確認飯店在配送範圍內"},
+  {id:"charter", item:"包車 4 天（2/5–2/8，Toyota Coaster 21 人座級，中文司機）", day:"D2", status:"待訂", where:"KKday", gyg:{site:"KKday", url:"https://www.kkday.com/en-us/product/138986-japan-customized-multi-day-charter-car-service-diy-free-travel-tokyo-osaka-nagoya-hokkaido", price:"整單報價", rating:"4.8（已售 6K+）"}, note:"14 人座 Hiace 最多只能坐 11 人，10 人加行李放不下，要選 21 人座。一天含 9 小時，超時 ¥10,000／小時付給司機；3 天前可免費取消。可以問同一家能不能順便報接機的價錢"},
   {id:"dinner-eve", item:"除夕年夜飯 10 人（2/5 晚上）", day:"D2", status:"待訂", where:"餐廳官網、Tabelog 或請飯店代訂", note:"要包廂或桌席，訂位時說明有 3 人吃素"},
-  {id:"tea-tokyo", item:"東京車站下午茶 10 人（2/5）", day:"D2", status:"待訂", where:"店家官網", note:"店家待定，訂得到哪間就去哪間"},
+  {id:"tea-tokyo", item:"晴空街道下午茶 10 人（2/5）", day:"D2", status:"待訂", where:"店家官網", note:"店家待定，訂得到哪間就去哪間"},
+  {id:"skytree", item:"晴空塔天望甲板日時指定券（2/5 14:00 左右，10 張）", day:"D2", status:"待訂", where:"晴空塔官網 tokyo-skytree.jp", note:"官網可以先選日期和時段；需要輪椅現場可借"},
   {id:"lunch-ginza", item:"銀座午餐 10 人（2/7）", day:"D4", status:"待訂", where:"餐廳官網或 Tabelog", note:"週日中午很滿，要先訂；選不用脫鞋的桌席"},
   {id:"teamlab", item:"teamLab Borderless 時段票（2/7 15:30 左右，10 張）", day:"D4", status:"待訂", where:"Klook 或 teamLab 官網", gyg:{site:"Klook", url:"https://www.klook.com/zh-HK/activity/20707-teamlab-borderless-admission-ticket-tokyo/", price:"HK$189 起／人", rating:"4.7（24,400 則）"}, note:"選時段入場；長輩票價以官網為準。需要輪椅先打電話 +81-3-6230-9666 問"},
 ];
@@ -426,9 +431,11 @@ const BOOKINGS = [
 /* 交通 */
 const LEGS = [
   {day:"D1", from:"台灣", to:"成田機場", mode:"飛機", how:"約 3 小時。", tip:"日本比台灣快 1 小時。"},
-  {day:"D1", from:"成田機場", to:"上野站旁飯店", mode:"包車", how:"司機在入境大廳舉牌接機，約 1–1.5 小時。", tip:"包車訂單要填航班號碼，班機延誤司機才會等。"},
-  {day:"D1", from:"飯店", to:"淺草寺 → 飯店", mode:"包車", how:"單程約 15 分鐘，雷門附近下車。", tip:""},
-  {day:"D2", from:"飯店", to:"上野公園 → KITTE → 飯店", mode:"包車", how:"上野公園走路就到；去東京車站約 15 分鐘。", tip:""},
+  {day:"D1", from:"成田機場", to:"飯店（大行李）", mode:"AIRPORTER", how:"13:00 前在第 1 航廈南翼 JAL ABC 櫃台交件，晚上 19:00 後送到飯店櫃台。", tip:"降落在第 2 航廈的話要走到第 1 航廈交件，或改用第 2 航廈的 JAL ABC、佐川當日配送。"},
+  {day:"D1", from:"成田機場", to:"上野站旁飯店", mode:"接機車", how:"司機在入境大廳舉牌接機，約 1–1.5 小時。", tip:"訂單要填航班號碼，班機延誤司機才會等。"},
+  {day:"D1", from:"飯店", to:"上野站一帶晚餐", mode:"步行", how:"走路幾分鐘。", tip:""},
+  {day:"D2", from:"飯店", to:"上野公園", mode:"步行", how:"約 10 分鐘。", tip:"長輩走不動就請司機提早到飯店接。"},
+  {day:"D2", from:"上野公園", to:"淺草 → 晴空塔 → 飯店", mode:"包車", how:"上野到淺草約 15 分鐘、淺草到晴空塔約 10 分鐘、晴空塔回飯店約 20 分鐘。", tip:"一路往東，最後一段一次拉回飯店。"},
   {day:"D3", from:"上野", to:"熱海", mode:"包車", how:"首都高 → 東名或小田原厚木道路，約 2 小時，中途休息一次。", tip:"週末回程容易塞，14:30 前出發。"},
   {day:"D4", from:"飯店", to:"銀座 → 麻布台之丘 → 飯店", mode:"包車", how:"每段約 20 分鐘。", tip:"銀座中央通 12:00–17:00 封街，在巷子上下車。"},
   {day:"D5", from:"飯店", to:"濱離宮 → 羽田機場", mode:"包車", how:"飯店到濱離宮約 20 分鐘，濱離宮到羽田約 25 分鐘。", tip:"行李一早就放車上。"},
@@ -441,7 +448,8 @@ const PREP = [
   {t:"長輩用藥", d:"藥品帶足 5 天份再加 2 天，放隨身行李；主揪保管一份全家的用藥清單和病歷摘要。"},
   {t:"素食", d:"日本很多料理用柴魚高湯，訂位時要講清楚「肉、魚、柴魚高湯都不行」；可以準備一張日文的素食說明卡。"},
   {t:"保暖", d:"東京 2 月白天約 10°C、早晚接近 0°C；帶發熱衣、羽絨外套、毛帽、手套、暖暖包。"},
-  {t:"行動", d:"需要的話帶折疊輪椅或拐杖；淺草寺、上野公園、濱離宮都是平路。"},
+  {t:"行動", d:"需要的話帶折疊輪椅或拐杖；淺草寺、上野公園、濱離宮都是平路，晴空塔可以借輪椅。"},
+  {t:"行李寄送", d:"抵達日大行李用 AIRPORTER 從成田寄到飯店（13:00 前交件、19:00 後送達），要先上網預約。每人準備一個隨身包，放藥、證件、換洗衣物、充電線，行李送到前都用得到。回程行李放包車上就好，不用寄。"},
   {t:"付款", d:"大多能刷卡或感應；帶一些日圓現金給小店、超時費（付給司機）。"},
   {t:"網路", d:"日本 eSIM 或 Wi-Fi 分享器；全家建同一個 LINE 群組，開位置分享。"},
   {t:"保險", d:"旅平險加買海外突發疾病和班機延誤，長輩尤其要買。"},
@@ -449,10 +457,10 @@ const PREP = [
 ];
 
 const GUIDES = [
-  {t:"全程交通", need:"包車", d:"中文司機門到門，全家不用轉電車；司機不是導遊，景點介紹靠我們自己。"},
+  {t:"全程交通", need:"包車", d:"第一天接機，後四天包車；中文司機門到門，全家不用轉電車。司機不是導遊，景點介紹靠我們自己。"},
   {t:"淺草寺、上野公園、濱離宮", need:"不用", d:"自己逛，平路好走。"},
   {t:"熱海", need:"不用", d:"司機會放大家在景點附近下車，回程時間先講好。"},
-  {t:"teamLab Borderless", need:"不用", d:"買好時段票就能進場，館內自由走。"},
+  {t:"晴空塔、teamLab Borderless", need:"不用", d:"買好時段票就能進場，裡面自由走。"},
 ];
 
 const COUNTRIES = [{k:"日本", seg:"ueno"}];
@@ -819,8 +827,8 @@ render();
 
 
 <script>
-const COORDS = {"Narita International Airport": [35.772, 140.3929], "Ueno Station": [35.7138, 139.7773], "Sensoji Temple": [35.7148, 139.7967], "Nakamise Shopping Street": [35.7118, 139.7964], "Ueno Park": [35.7156, 139.7745], "Tokyo National Museum": [35.7189, 139.7765], "KITTE Marunouchi": [35.6795, 139.7645], "Itokawa Promenade Atami": [35.0958, 139.0752], "Atami Baien": [35.1086, 139.0569], "Ginza Mitsukoshi": [35.6717, 139.7655], "Azabudai Hills": [35.6606, 139.7404], "Hama-rikyu Gardens": [35.66, 139.7633], "Haneda Airport": [35.5494, 139.7798], "Taipei Taoyuan Airport": [25.0777, 121.2328], "Taipei Songshan Airport": [25.0697, 121.5517]};
-const PLABEL = {"Narita International Airport": "成田機場", "Ueno Station": "上野（住宿）", "Sensoji Temple": "淺草寺", "Nakamise Shopping Street": "仲見世通", "Ueno Park": "上野公園", "Tokyo National Museum": "東京國立博物館", "KITTE Marunouchi": "KITTE 丸之內", "Itokawa Promenade Atami": "糸川遊步道", "Atami Baien": "熱海梅園", "Ginza Mitsukoshi": "銀座三越", "Azabudai Hills": "麻布台之丘", "Hama-rikyu Gardens": "濱離宮", "Haneda Airport": "羽田機場", "Taipei Taoyuan Airport": "桃園機場", "Taipei Songshan Airport": "松山機場"};
+const COORDS = {"Narita International Airport": [35.772, 140.3929], "Ueno Station": [35.7138, 139.7773], "Sensoji Temple": [35.7148, 139.7967], "Nakamise Shopping Street": [35.7118, 139.7964], "Ueno Park": [35.7156, 139.7745], "Tokyo National Museum": [35.7189, 139.7765], "KITTE Marunouchi": [35.6795, 139.7645], "Itokawa Promenade Atami": [35.0958, 139.0752], "Atami Baien": [35.1086, 139.0569], "Ginza Mitsukoshi": [35.6717, 139.7655], "Azabudai Hills": [35.6606, 139.7404], "Hama-rikyu Gardens": [35.66, 139.7633], "Haneda Airport": [35.5494, 139.7798], "Tokyo Skytree": [35.7101, 139.8107], "Taipei Taoyuan Airport": [25.0777, 121.2328], "Taipei Songshan Airport": [25.0697, 121.5517]};
+const PLABEL = {"Narita International Airport": "成田機場", "Ueno Station": "上野（住宿）", "Sensoji Temple": "淺草寺", "Nakamise Shopping Street": "仲見世通", "Ueno Park": "上野公園", "Tokyo National Museum": "東京國立博物館", "KITTE Marunouchi": "KITTE 丸之內", "Itokawa Promenade Atami": "糸川遊步道", "Atami Baien": "熱海梅園", "Ginza Mitsukoshi": "銀座三越", "Azabudai Hills": "麻布台之丘", "Hama-rikyu Gardens": "濱離宮", "Haneda Airport": "羽田機場", "Tokyo Skytree": "晴空塔", "Taipei Taoyuan Airport": "桃園機場", "Taipei Songshan Airport": "松山機場"};
 const DAYHEX = ["#B4472E","#A9741A","#16807C","#A23E6A","#2F6DB0","#5D6878","#2E7D4F"];
 let _maps = [];
 function dayPath(d){
