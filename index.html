@@ -377,22 +377,23 @@ const DAYS = [
     tips:"為什麼不去河津：2027 年的開花預測要到 2027 年 1–2 月才會公布，只能看往年。過去十年河津櫻多半在 2 月中旬才到最好看；近年最早的是 2024 年，2/12 宣布見頃，2025 年則到 3/1 左右才滿開，2026 年實際在 2/18 左右才七分開。2/6 大多還只是剛開到三分。熱海的あたみ桜每年 1 月到 2 月上旬盛開，車程也近 1 小時。想看河津櫻的話，出發前一週看河津町公布的開花狀況再決定（單程約 3 小時，要提早到 07:00 出發）。包車 14 人座以上一天含 9 小時，今天 08:00–17:30 會超時，超時費約 ¥10,000／小時（21 人座），付給司機。熱海梅園梅祭期間 8:30–16:00 入園 ¥300。",
     stay:"上野站旁飯店（第 3 晚）", transport:"包車：上野 ⇄ 熱海（單程約 2 小時）", temp:"熱海 4°C ~ 12°C・比東京暖一點" },
 
-  { seg:"ueno", city:"銀座・teamLab Borderless", short:"銀座・teamLab", theme:"週日・暖氣百貨與光之美術館",
-    route:["Ueno Station","Ginza Mitsukoshi","Azabudai Hills","Ueno Station"], rmode:"driving",
+  { seg:"ueno", city:"皇居・東京車站・銀座", short:"皇居・東京站・銀座", theme:"週日・一路往南，逛完包車拉回上野",
+    route:["Ueno Station","Nijubashi Bridge","KITTE Marunouchi","Ginza Mitsukoshi","Ueno Station"], rmode:"driving",
     plan:[
-      {t:"10:30", title:"包車到銀座", desc:"約 20 分鐘"},
-      {t:"11:00", title:"銀座三越・購物", desc:"百貨裡暖氣足、每層都有廁所和椅子；週日中午起中央通變成步行者天國，可以走在大馬路中間", map:"Ginza Mitsukoshi"},
-      {t:"12:30", title:"銀座午餐", desc:"10 人包廂或桌席（餐廳待訂）；百貨高樓層的餐廳街選擇多"},
-      {t:"14:00", title:"UNIQLO 銀座・自由逛", desc:"想逛的去逛，長輩可以在百貨咖啡廳休息", map:"UNIQLO Ginza"},
-      {t:"15:30", title:"teamLab Borderless（麻布台之丘）", desc:"包車約 20 分鐘；預約時段票。館內很暗、地面有坡，長輩跟緊；部分作品輪椅到不了", map:"teamLab Borderless Azabudai Hills"},
-      {t:"17:30", title:"麻布台之丘晚餐或回上野", desc:"看大家體力決定（餐廳待訂）"},
+      {t:"10:00", title:"包車從飯店出發", desc:"約 20 分鐘到皇居外苑"},
+      {t:"10:20", title:"皇居外苑・二重橋", desc:"在觀光巴士專用的楠公停車場下車，走到二重橋前約 10 分鐘；廣場鋪碎石，長輩慢慢走。拍全家合照的好地方", map:"Nijubashi Bridge Tokyo"},
+      {t:"11:15", title:"KITTE 屋頂花園・東京車站", desc:"包車約 5–10 分鐘。電梯直達 6 樓屋頂花園，免費看紅磚的東京車站；樓下商場有暖氣，可以坐著休息", map:"KITTE Marunouchi"},
+      {t:"12:15", title:"銀座午餐", desc:"包車約 10 分鐘；10 人包廂或桌席（餐廳待訂），百貨高樓層的餐廳街選擇多"},
+      {t:"13:45", title:"銀座三越・步行者天國", desc:"百貨裡暖氣足、每層都有廁所和椅子；週日中午起中央通封街，可以走在大馬路中間。想逛 UNIQLO 的自己去，長輩在百貨咖啡廳休息", map:"Ginza Mitsukoshi"},
+      {t:"16:00", title:"包車回上野", desc:"約 20–30 分鐘，回飯店休息"},
+      {t:"18:00", title:"上野晚餐", desc:"最後一晚，吃完早點打包（餐廳待訂）"},
     ],
     hl:[
-      {tag:"購物", title:"銀座步行者天國", desc:"週六日 12:00–17:00 封街，中央通 1–8 丁目變成行人專用"},
-      {tag:"拍照", title:"teamLab 光影", desc:"穿淺色衣服拍起來最好看；館內不能帶大包包"},
+      {tag:"路線", title:"一路往南，最後拉回來", desc:"上野 → 皇居 → 東京車站 → 銀座，不走回頭路，逛完包車一次載回飯店"},
+      {tag:"長輩", title:"經典景點、大多有暖氣", desc:"皇居和東京車站拍照，下午都在百貨裡，冷了累了隨時坐"},
     ],
-    tips:"銀座步行者天國 12:00–17:00 車子進不了中央通，請司機在旁邊的巷子上下車。teamLab Borderless 要選時段入場，週日加上春節人很多，越早訂越好；入場後在館內不限時，但最後入場時間前要進場。",
-    stay:"上野站旁飯店（第 4 晚）", transport:"包車：上野 → 銀座 → 麻布台 → 上野", temp:"東京 2°C ~ 10°C" },
+    tips:"銀座步行者天國週六日 12:00–17:00，車子進不了中央通，請司機在旁邊的巷子上下車。楠公停車場只給觀光巴士和觀光計程車停，包車公司要是正規的綠牌車才停得進去，訂車時順便確認。皇居前廣場沒什麼遮蔽，風大要戴帽子。明天一早退房，今晚先打包。",
+    stay:"上野站旁飯店（第 4 晚）", transport:"包車：上野 → 皇居 → 東京車站 → 銀座 → 上野", temp:"東京 2°C ~ 10°C" },
 
   { seg:"tpe", city:"濱離宮賞梅 → 羽田回家", short:"賞梅・回家", theme:"最後半天・梅花與伴手禮",
     route:["Ueno Station","Hama-rikyu Gardens","Haneda Airport"], rmode:"driving",
@@ -425,7 +426,6 @@ const BOOKINGS = [
   {id:"tea-tokyo", item:"晴空街道下午茶 10 人（2/5）", day:"D2", status:"待訂", where:"店家官網", note:"店家待定，訂得到哪間就去哪間"},
   {id:"skytree", item:"晴空塔天望甲板日時指定券（2/5 13:00 左右，10 張）", day:"D2", status:"待訂", where:"晴空塔官網 tokyo-skytree.jp", note:"官網可以先選日期和時段；需要輪椅現場可借"},
   {id:"lunch-ginza", item:"銀座午餐 10 人（2/7）", day:"D4", status:"待訂", where:"餐廳官網或 Tabelog", note:"週日中午很滿，要先訂；選不用脫鞋的桌席"},
-  {id:"teamlab", item:"teamLab Borderless 時段票（2/7 15:30 左右，10 張）", day:"D4", status:"待訂", where:"Klook 或 teamLab 官網", gyg:{site:"Klook", url:"https://www.klook.com/zh-HK/activity/20707-teamlab-borderless-admission-ticket-tokyo/", price:"HK$189 起／人", rating:"4.7（24,400 則）"}, note:"選時段入場；長輩票價以官網為準。需要輪椅先打電話 +81-3-6230-9666 問"},
 ];
 
 /* 交通 */
@@ -437,7 +437,7 @@ const LEGS = [
   {day:"D1", from:"飯店", to:"上野站一帶晚餐", mode:"步行", how:"走路幾分鐘。", tip:""},
   {day:"D2", from:"飯店", to:"淺草 → 晴空塔 → 飯店", mode:"包車", how:"飯店到淺草約 15 分鐘、淺草到晴空塔約 10 分鐘、晴空塔回飯店約 20 分鐘。", tip:"一路往東，最後一段一次拉回飯店。"},
   {day:"D3", from:"上野", to:"熱海", mode:"包車", how:"首都高 → 東名或小田原厚木道路，約 2 小時，中途休息一次。", tip:"週末回程容易塞，14:30 前出發。"},
-  {day:"D4", from:"飯店", to:"銀座 → 麻布台之丘 → 飯店", mode:"包車", how:"每段約 20 分鐘。", tip:"銀座中央通 12:00–17:00 封街，在巷子上下車。"},
+  {day:"D4", from:"飯店", to:"皇居外苑 → KITTE → 銀座 → 飯店", mode:"包車", how:"飯店到皇居約 20 分鐘、皇居到東京車站約 5–10 分鐘、東京車站到銀座約 10 分鐘、銀座回上野約 20–30 分鐘。", tip:"皇居在楠公停車場下車；銀座中央通 12:00–17:00 封街，在巷子上下車。"},
   {day:"D5", from:"飯店", to:"濱離宮 → 羽田機場", mode:"包車", how:"飯店到濱離宮約 20 分鐘，濱離宮到羽田約 25 分鐘。", tip:"行李一早就放車上。"},
   {day:"D5", from:"羽田機場", to:"台灣", mode:"飛機", how:"約 3.5–4 小時。", tip:"國際線提早 2.5 小時到。"},
 ];
@@ -460,7 +460,8 @@ const GUIDES = [
   {t:"全程交通", need:"包車", d:"第一天接機，後四天包車；中文司機門到門，全家不用轉電車。司機不是導遊，景點介紹靠我們自己。"},
   {t:"淺草寺、上野公園、濱離宮", need:"不用", d:"自己逛，平路好走。"},
   {t:"熱海", need:"不用", d:"司機會放大家在景點附近下車，回程時間先講好。"},
-  {t:"晴空塔、teamLab Borderless", need:"不用", d:"買好時段票就能進場，裡面自由走。"},
+  {t:"晴空塔", need:"不用", d:"買好時段票就能進場，裡面自由走。"},
+  {t:"皇居外苑、東京車站、銀座", need:"不用", d:"自己逛；皇居只在外苑拍照，不用預約。"},
 ];
 
 const COUNTRIES = [{k:"日本", seg:"ueno"}];
@@ -827,8 +828,8 @@ render();
 
 
 <script>
-const COORDS = {"Narita International Airport": [35.772, 140.3929], "Ueno Station": [35.7138, 139.7773], "Sensoji Temple": [35.7148, 139.7967], "Nakamise Shopping Street": [35.7118, 139.7964], "Ueno Park": [35.7156, 139.7745], "Tokyo National Museum": [35.7189, 139.7765], "KITTE Marunouchi": [35.6795, 139.7645], "Itokawa Promenade Atami": [35.0958, 139.0752], "Atami Baien": [35.1086, 139.0569], "Ginza Mitsukoshi": [35.6717, 139.7655], "Azabudai Hills": [35.6606, 139.7404], "Hama-rikyu Gardens": [35.66, 139.7633], "Haneda Airport": [35.5494, 139.7798], "Tokyo Skytree": [35.7101, 139.8107], "Shinobazu Pond": [35.7117, 139.7699], "Taipei Taoyuan Airport": [25.0777, 121.2328], "Taipei Songshan Airport": [25.0697, 121.5517]};
-const PLABEL = {"Narita International Airport": "成田機場", "Ueno Station": "上野（住宿）", "Sensoji Temple": "淺草寺", "Nakamise Shopping Street": "仲見世通", "Ueno Park": "上野公園", "Tokyo National Museum": "東京國立博物館", "KITTE Marunouchi": "KITTE 丸之內", "Itokawa Promenade Atami": "糸川遊步道", "Atami Baien": "熱海梅園", "Ginza Mitsukoshi": "銀座三越", "Azabudai Hills": "麻布台之丘", "Hama-rikyu Gardens": "濱離宮", "Haneda Airport": "羽田機場", "Tokyo Skytree": "晴空塔", "Shinobazu Pond": "不忍池", "Taipei Taoyuan Airport": "桃園機場", "Taipei Songshan Airport": "松山機場"};
+const COORDS = {"Narita International Airport": [35.772, 140.3929], "Ueno Station": [35.7138, 139.7773], "Sensoji Temple": [35.7148, 139.7967], "Nakamise Shopping Street": [35.7118, 139.7964], "Ueno Park": [35.7156, 139.7745], "Tokyo National Museum": [35.7189, 139.7765], "KITTE Marunouchi": [35.6795, 139.7645], "Itokawa Promenade Atami": [35.0958, 139.0752], "Atami Baien": [35.1086, 139.0569], "Ginza Mitsukoshi": [35.6717, 139.7655], "Azabudai Hills": [35.6606, 139.7404], "Hama-rikyu Gardens": [35.66, 139.7633], "Haneda Airport": [35.5494, 139.7798], "Tokyo Skytree": [35.7101, 139.8107], "Nijubashi Bridge": [35.6797, 139.7538], "Shinobazu Pond": [35.7117, 139.7699], "Taipei Taoyuan Airport": [25.0777, 121.2328], "Taipei Songshan Airport": [25.0697, 121.5517]};
+const PLABEL = {"Narita International Airport": "成田機場", "Ueno Station": "上野（住宿）", "Sensoji Temple": "淺草寺", "Nakamise Shopping Street": "仲見世通", "Ueno Park": "上野公園", "Tokyo National Museum": "東京國立博物館", "KITTE Marunouchi": "KITTE 丸之內", "Itokawa Promenade Atami": "糸川遊步道", "Atami Baien": "熱海梅園", "Ginza Mitsukoshi": "銀座三越", "Azabudai Hills": "麻布台之丘", "Hama-rikyu Gardens": "濱離宮", "Haneda Airport": "羽田機場", "Tokyo Skytree": "晴空塔", "Nijubashi Bridge": "皇居二重橋", "Shinobazu Pond": "不忍池", "Taipei Taoyuan Airport": "桃園機場", "Taipei Songshan Airport": "松山機場"};
 const DAYHEX = ["#B4472E","#A9741A","#16807C","#A23E6A","#2F6DB0","#5D6878","#2E7D4F"];
 let _maps = [];
 function dayPath(d){
